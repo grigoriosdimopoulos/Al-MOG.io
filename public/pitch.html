@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AL-MOG.IO — Political Intelligence Platform | Executive Briefing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0d1f3c;
+      --navy-mid:  #162847;
+      --navy-lite: #1e3560;
+      --gold:      #b8922a;
+      --gold-lite: #d4a94a;
+      --red:       #8b1a1a;
+      --off-white: #f5f2eb;
+      --white:     #ffffff;
+      --rule:      #c8b98a;
+      --text:      #1a1a2e;
+      --muted:     #4a4a6a;
+      --border:    #d0c9b8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--off-white);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── Typography ────────────────────────────────────────────── */
+    h1, h2, h3, h4 { font-family: 'EB Garamond', serif; }
+
+    .serif { font-family: 'EB Garamond', serif; }
+    .caps  { text-transform: uppercase; letter-spacing: .12em; }
+
+    /* ── Layout helpers ────────────────────────────────────────── */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 40px; }
+    .section   { padding: 72px 0; }
+    .section--dark    { background: var(--navy); color: var(--off-white); }
+    .section--mid     { background: var(--navy-mid); color: var(--off-white); }
+    .section--white   { background: var(--white); }
+    .section--offwhite { background: var(--off-white); }
+    .rule { border: none; border-top: 1px solid var(--rule); margin: 40px 0; }
+    .rule--gold { border-color: var(--gold); }
+    .rule--white { border-color: rgba(255,255,255,.2); }
+
+    /* ── Nav ───────────────────────────────────────────────────── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--navy);
+      border-bottom: 2px solid var(--gold);
+      padding: 0 40px;
+    }
+    #nav .inner {
+      max-width: 960px; margin: 0 auto;
+      display: flex; align-items: center; height: 54px; gap: 32px;
+    }
+    #nav .wordmark {
+      font-family: 'EB Garamond', serif;
+      font-size: 18px; font-weight: 700;
+      color: var(--white); letter-spacing: .04em;
+    }
+    #nav .wordmark span { color: var(--gold-lite); }
+    #nav .links { display: flex; gap: 28px; margin-left: auto; }
+    #nav .links a {
+      font-size: 11px; font-weight: 500; color: rgba(255,255,255,.55);
+      text-decoration: none; text-transform: uppercase; letter-spacing: .1em;
+      transition: color .2s;
+    }
+    #nav .links a:hover { color: var(--gold-lite); }
+    #nav .cta {
+      margin-left: 16px;
+      background: var(--gold); color: var(--navy);
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; text-decoration: none;
+      padding: 8px 18px; border: none; cursor: pointer;
+    }
+    #nav .cta:hover { background: var(--gold-lite); }
+
+    /* ── Cover ─────────────────────────────────────────────────── */
+    #cover {
+      background: var(--navy);
+      padding-top: 110px;
+      padding-bottom: 0;
+      border-bottom: 4px double var(--gold);
+    }
+    .cover-inner {
+      max-width: 960px; margin: 0 auto; padding: 0 40px 0;
+    }
+
+    .doc-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(184,146,42,.3);
+      margin-bottom: 40px;
+    }
+    .doc-seal {
+      width: 76px; height: 76px; flex-shrink: 0;
+      border: 3px solid var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .doc-seal svg { width: 42px; height: 42px; }
+    .doc-meta { text-align: right; }
+    .doc-meta .classification {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase;
+      border: 1px solid rgba(184,146,42,.6);
+      color: var(--gold-lite); padding: 4px 12px;
+      margin-bottom: 10px;
+    }
+    .doc-meta .ref {
+      font-size: 11px; color: rgba(255,255,255,.4);
+      line-height: 1.8;
+    }
+
+    .cover-title {
+      font-size: clamp(42px, 6vw, 72px);
+      font-weight: 800; color: var(--white);
+      line-height: 1.05; letter-spacing: -.01em;
+      margin-bottom: 8px;
+    }
+    .cover-title em { color: var(--gold-lite); font-style: normal; }
+    .cover-subtitle {
+      font-size: clamp(16px, 2.5vw, 22px);
+      color: rgba(255,255,255,.55); font-weight: 300;
+      letter-spacing: .04em; margin-bottom: 40px;
+    }
+
+    .cover-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(184,146,42,.3);
+      border-bottom: 1px solid rgba(184,146,42,.3);
+      margin-bottom: 0;
+    }
+    .cover-stat {
+      padding: 28px 20px;
+      border-right: 1px solid rgba(184,146,42,.15);
+    }
+    .cover-stat:last-child { border-right: none; }
+    .cover-stat .num {
+      font-family: 'EB Garamond', serif;
+      font-size: 36px; font-weight: 700;
+      color: var(--gold-lite); line-height: 1;
+      margin-bottom: 4px;
+    }
+    .cover-stat .lbl {
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .12em;
+      color: rgba(255,255,255,.4);
+    }
+
+    /* ── Section headers ───────────────────────────────────────── */
+    .sec-label {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 20px;
+    }
+    .sec-label .num {
+      font-size: 11px; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    .sec-label .line { height: 1px; width: 32px; background: var(--gold); }
+    .sec-label .tag {
+      font-size: 10px; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .sec-label--light .tag { color: rgba(255,255,255,.4); }
+
+    .sec-heading {
+      font-size: clamp(28px, 4vw, 42px); font-weight: 700;
+      line-height: 1.15; margin-bottom: 16px;
+    }
+    .sec-heading--white { color: var(--white); }
+    .sec-heading--dark  { color: var(--navy); }
+
+    .sec-body {
+      font-size: 15px; line-height: 1.8;
+      max-width: 640px;
+    }
+    .sec-body--muted { color: var(--muted); }
+    .sec-body--light { color: rgba(255,255,255,.65); }
+
+    /* ── Problem/Solution split ─────────────────────────────────── */
+    .ps-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+      border: 1px solid var(--border);
+    }
+    .ps-col { padding: 40px 36px; }
+    .ps-col.problem { background: var(--white); border-right: 2px solid var(--border); }
+    .ps-col.solution { background: var(--navy); }
+    .ps-col-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .ps-col.problem .ps-col-label { color: var(--red); }
+    .ps-col.solution .ps-col-label { color: var(--gold); }
+    .ps-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 18px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ps-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .ps-col.solution .ps-item { border-color: rgba(255,255,255,.1); }
+    .ps-icon {
+      width: 28px; height: 28px; flex-shrink: 0;
+      font-size: 14px; display: flex; align-items: center; justify-content: center;
+    }
+    .ps-icon.neg { color: var(--red); font-size: 18px; font-weight: 700; }
+    .ps-icon.pos { color: var(--gold-lite); font-size: 18px; font-weight: 700; }
+    .ps-text { font-size: 14px; line-height: 1.65; color: var(--text); }
+    .ps-col.solution .ps-text { color: rgba(255,255,255,.8); }
+
+    /* ── Capability table ──────────────────────────────────────── */
+    .cap-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+    }
+    .cap-cell {
+      background: var(--white); padding: 32px 28px;
+    }
+    .cap-cell-num {
+      font-family: 'EB Garamond', serif;
+      font-size: 40px; font-weight: 700;
+      color: var(--gold); line-height: 1;
+      margin-bottom: 12px;
+    }
+    .cap-cell-title {
+      font-size: 13px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .cap-cell-body { font-size: 13px; line-height: 1.7; color: var(--muted); }
+
+    /* ── Scenarios ─────────────────────────────────────────────── */
+    .scenario {
+      display: grid; grid-template-columns: 240px 1fr; gap: 0;
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .scenario:last-child { margin-bottom: 0; }
+    .scenario-side {
+      background: var(--navy); padding: 32px 28px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .scenario-persona {
+      font-size: 10px; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+    }
+    .scenario-name {
+      font-family: 'EB Garamond', serif;
+      font-size: 22px; font-weight: 700; color: var(--white);
+      line-height: 1.2; margin-bottom: 12px;
+    }
+    .scenario-context {
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.65; border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 12px;
+    }
+    .scenario-body { background: var(--white); padding: 32px 36px; }
+    .scenario-quote {
+      font-family: 'EB Garamond', serif;
+      font-size: 17px; font-style: italic;
+      line-height: 1.6; color: var(--navy);
+      border-left: 3px solid var(--gold);
+      padding-left: 20px; margin-bottom: 24px;
+    }
+    .scenario-flow-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .scenario-flow { list-style: none; margin-bottom: 20px; }
+    .scenario-flow li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; line-height: 1.6; color: var(--text);
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+    }
+    .scenario-flow li:last-child { border-bottom: none; }
+    .scenario-flow li .step-num {
+      font-size: 10px; font-weight: 700; color: var(--gold);
+      width: 16px; flex-shrink: 0; padding-top: 3px;
+    }
+    .scenario-outcome {
+      background: var(--navy); color: var(--off-white);
+      padding: 14px 18px; font-size: 13px; line-height: 1.6;
+    }
+    .scenario-outcome strong { color: var(--gold-lite); }
+
+    /* ── Wireframes ─────────────────────────────────────────────── */
+    .wire-section { margin-bottom: 56px; }
+    .wire-label {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wire-label-num {
+      font-size: 11px; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--white);
+      background: var(--navy); padding: 4px 12px;
+    }
+    .wire-label-title {
+      font-size: 14px; font-weight: 600; color: var(--navy);
+    }
+    .wire-frame {
+      background: #060d1a;
+      border: 1px solid #1e3060;
+      font-family: 'Inter', monospace;
+    }
+    .wire-chrome {
+      background: #0a1628;
+      border-bottom: 1px solid #1e3060;
+      padding: 8px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .wire-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .wire-urlbar {
+      flex: 1; background: #0f1d38; border: 1px solid #1e3060;
+      height: 20px; border-radius: 2px;
+      display: flex; align-items: center; padding: 0 10px;
+      font-size: 9px; color: #4a6090; margin: 0 16px;
+    }
+    .wire-body { display: flex; }
+    .wire-sidebar {
+      width: 220px; flex-shrink: 0;
+      background: #0c1929;
+      border-right: 1px solid #1e3060;
+      padding: 16px;
+    }
+    .wire-main { flex: 1; padding: 16px; min-width: 0; }
+    .wire-header {
+      background: #081525;
+      border-bottom: 1px solid #1e3060;
+      padding: 8px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .wb { height: 8px; border-radius: 1px; background: #1e3060; }
+    .wt { height: 6px; border-radius: 1px; background: #152540; }
+    .wg { height: 6px; border-radius: 1px; background: rgba(184,146,42,.3); }
+
+    /* Input row */
+    .w-input {
+      height: 22px; background: #0f1d38;
+      border: 1px solid #1e3060; border-radius: 2px;
+      display: flex; align-items: center; padding: 0 8px; gap: 6px;
+    }
+    .w-tag {
+      font-size: 7px; padding: 2px 6px; border-radius: 10px;
+      background: rgba(184,146,42,.12); border: 1px solid rgba(184,146,42,.25);
+      color: rgba(184,146,42,.7); white-space: nowrap;
+    }
+    .w-check {
+      width: 10px; height: 10px; border-radius: 1px;
+      background: rgba(184,146,42,.6); display: inline-flex;
+      align-items: center; justify-content: center;
+      font-size: 7px; color: #060d1a; font-weight: 900;
+    }
+    .w-check-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 6px;
+    }
+    .w-slider { height: 3px; background: #1e3060; border-radius: 2px; position: relative; margin: 8px 0; }
+    .w-slider-fill { position: absolute; top: 0; bottom: 0; background: rgba(184,146,42,.5); border-radius: 2px; }
+    .w-slider-thumb {
+      position: absolute; top: -4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #c9a84c; border: 1px solid #060d1a;
+    }
+    .w-btn {
+      height: 26px; border-radius: 2px;
+      background: linear-gradient(90deg, rgba(184,146,42,.7), rgba(180,130,30,.7));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 700; color: #060d1a; letter-spacing: .05em;
+    }
+    .w-card {
+      background: #0c1929; border: 1px solid #1e3060;
+      border-radius: 2px; padding: 10px; margin-bottom: 8px;
+    }
+    .w-card-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .w-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #2a4080, #1a2a55); flex-shrink: 0; }
+    .w-score-ring {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid rgba(52,211,153,.7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 700; color: rgba(52,211,153,.9);
+      flex-shrink: 0; margin-left: auto;
+    }
+    .w-score-ring.med { border-color: rgba(251,191,36,.7); color: rgba(251,191,36,.9); }
+    .w-metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .w-metric {
+      background: #081525; border-radius: 2px; padding: 4px 6px; text-align: center;
+    }
+    .w-summary { background: #081525; border: 1px solid #1e3060; border-radius: 2px; padding: 6px 8px; margin-top: 6px; }
+    .w-ann {
+      font-size: 9px; color: rgba(184,146,42,.9);
+      padding: 3px 8px;
+      background: rgba(184,146,42,.06);
+      border: 1px solid rgba(184,146,42,.2);
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .wire-annotations {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      margin-top: 12px;
+    }
+    .wire-ann-item {
+      padding: 14px 16px;
+      background: var(--white); border: 1px solid var(--border);
+    }
+    .wire-ann-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 4px;
+    }
+    .wire-ann-text { font-size: 12px; line-height: 1.6; color: var(--muted); }
+
+    /* Modal wireframe */
+    .w-modal-overlay {
+      background: rgba(0,0,0,.65);
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px;
+    }
+    .w-modal {
+      background: #0c1929; border: 1px solid #2a4070;
+      width: 320px; padding: 20px;
+    }
+    .w-score-banner {
+      background: #081525; border: 1px solid #1e3060;
+      padding: 12px 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 14px;
+    }
+    .w-big-score {
+      font-family: 'EB Garamond', serif;
+      font-size: 42px; font-weight: 800; color: rgba(52,211,153,.9); line-height: 1;
+    }
+    .w-ai-panel {
+      background: rgba(52,211,153,.04);
+      border: 1px solid rgba(52,211,153,.15);
+      padding: 10px 12px; margin-top: 10px;
+    }
+
+    /* Dashboard wireframe */
+    .w-dash-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .w-dash-stat {
+      background: #0c1929; border: 1px solid #1e3060;
+      padding: 12px; text-align: center;
+    }
+    .w-dash-num {
+      font-family: 'EB Garamond', serif;
+      font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px;
+    }
+    .w-dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .w-dash-panel { background: #0c1929; border: 1px solid #1e3060; padding: 12px; }
+    .w-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .w-bar-track { flex: 1; height: 4px; background: #1e3060; border-radius: 2px; overflow: hidden; }
+    .w-bar-fill { height: 100%; border-radius: 2px; }
+
+    /* ── Roadmap ───────────────────────────────────────────────── */
+    .roadmap-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .roadmap-col {
+      background: var(--white);
+      display: flex; flex-direction: column;
+    }
+    .roadmap-col.active { background: var(--navy); }
+    .roadmap-head {
+      padding: 24px 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .roadmap-col.active .roadmap-head { border-color: rgba(255,255,255,.12); }
+    .roadmap-phase {
+      font-size: 10px; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .roadmap-col.active .roadmap-phase { color: var(--gold); }
+    .roadmap-col:not(.active) .roadmap-phase { color: var(--muted); }
+    .roadmap-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 20px; font-weight: 700; line-height: 1.2;
+    }
+    .roadmap-col.active .roadmap-title { color: var(--white); }
+    .roadmap-col:not(.active) .roadmap-title { color: var(--navy); }
+    .roadmap-sub {
+      font-size: 11px; margin-top: 4px;
+    }
+    .roadmap-col.active .roadmap-sub { color: rgba(255,255,255,.4); }
+    .roadmap-col:not(.active) .roadmap-sub { color: var(--muted); }
+    .roadmap-timeline {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .1em;
+      padding: 3px 10px; margin-top: 10px;
+    }
+    .roadmap-col.active .roadmap-timeline { background: rgba(184,146,42,.15); color: var(--gold-lite); }
+    .roadmap-col:not(.active) .roadmap-timeline { background: #f0ece4; color: var(--muted); }
+    .roadmap-body { padding: 20px 24px; flex: 1; }
+    .roadmap-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12.5px; line-height: 1.5;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .roadmap-col.active .roadmap-item { border-color: rgba(255,255,255,.08); }
+    .roadmap-item:last-child { border-bottom: none; }
+    .roadmap-col.active .roadmap-item { color: rgba(255,255,255,.75); }
+    .roadmap-col:not(.active) .roadmap-item { color: var(--text); }
+    .roadmap-bullet { color: var(--gold); flex-shrink: 0; padding-top: 2px; font-size: 11px; }
+    .roadmap-metrics {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    }
+    .roadmap-col.active .roadmap-metrics { border-color: rgba(255,255,255,.12); }
+    .roadmap-metric {
+      font-size: 11px; text-align: center;
+      padding: 6px;
+    }
+    .roadmap-col.active .roadmap-metric { background: rgba(255,255,255,.05); color: rgba(255,255,255,.5); }
+    .roadmap-col:not(.active) .roadmap-metric { background: #f5f2eb; color: var(--muted); }
+
+    /* ── Feature matrix ─────────────────────────────────────────── */
+    .matrix {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px;
+    }
+    .matrix thead th {
+      background: var(--navy); color: var(--off-white);
+      padding: 14px 20px; text-align: left;
+      font-size: 11px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; border: 1px solid rgba(255,255,255,.08);
+    }
+    .matrix thead th.gold { color: var(--gold-lite); }
+    .matrix tbody td {
+      padding: 12px 20px; border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .matrix tbody tr:nth-child(even) td { background: rgba(200,185,138,.06); }
+    .matrix tbody td:first-child {
+      font-weight: 600; color: var(--navy);
+    }
+    .matrix .check { color: #1a7a3c; font-size: 16px; font-weight: 700; }
+    .matrix .cross { color: #8b1a1a; font-size: 16px; }
+
+    /* ── Tech stack ─────────────────────────────────────────────── */
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+    }
+    .tech-row { background: var(--white); padding: 20px 24px; display: flex; gap: 20px; align-items: flex-start; }
+    .tech-layer {
+      width: 120px; flex-shrink: 0;
+      font-size: 10px; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--gold); padding-top: 2px;
+    }
+    .tech-detail .tech-name { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+    .tech-detail .tech-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── CTA ───────────────────────────────────────────────────── */
+    #cta {
+      background: var(--navy);
+      border-top: 4px double var(--gold);
+      text-align: center; padding: 80px 40px;
+    }
+    .cta-heading {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(32px, 5vw, 56px); font-weight: 700;
+      color: var(--white); margin-bottom: 16px;
+    }
+    .cta-body { font-size: 16px; color: rgba(255,255,255,.55); margin-bottom: 40px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .cta-btn {
+      display: inline-block; background: var(--gold); color: var(--navy);
+      font-size: 13px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; text-decoration: none;
+      padding: 16px 40px; border: none; cursor: pointer;
+      transition: background .2s;
+    }
+    .cta-btn:hover { background: var(--gold-lite); }
+    .cta-sub { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,.3); letter-spacing: .08em; }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer {
+      background: #050d1a;
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 24px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer .foot-left { font-size: 12px; color: rgba(255,255,255,.3); }
+    footer .foot-right { font-size: 10px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: rgba(184,146,42,.4); }
+
+    /* ── Utilities ──────────────────────────────────────────────── */
+    .mt-4  { margin-top: 16px; }
+    .mt-8  { margin-top: 32px; }
+    .mt-12 { margin-top: 48px; }
+    .mb-4  { margin-bottom: 16px; }
+    .mb-6  { margin-bottom: 24px; }
+    .mb-8  { margin-bottom: 32px; }
+    .flex  { display: flex; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .items-center { align-items: center; }
+    .text-gold { color: var(--gold-lite); }
+    .text-sm { font-size: 12px; }
+    .font-bold { font-weight: 700; }
+    .text-white { color: var(--white); }
+
+    /* ── Print ──────────────────────────────────────────────────── */
+    @media print {
+      #nav { display: none; }
+      #cover { padding-top: 40px; }
+      .section { padding: 48px 0; }
+      .wire-frame { page-break-inside: avoid; }
+      .roadmap-grid { page-break-inside: avoid; }
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .container { padding: 0 20px; }
+      .cover-stats { grid-template-columns: repeat(2, 1fr); }
+      .ps-grid { grid-template-columns: 1fr; }
+      .ps-col.problem { border-right: none; border-bottom: 2px solid var(--border); }
+      .cap-grid { grid-template-columns: 1fr; }
+      .scenario { grid-template-columns: 1fr; }
+      .wire-annotations { grid-template-columns: 1fr; }
+      .roadmap-grid { grid-template-columns: 1fr 1fr; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .matrix { font-size: 11px; }
+      .matrix tbody td { padding: 10px 12px; }
+      #nav .links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav id="nav">
+  <div class="inner">
+    <div class="wordmark">AL-MOG<span>.IO</span></div>
+    <div class="links">
+      <a href="#problem">Problem</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#scenarios">Scenarios</a>
+      <a href="#wireframes">Wireframes</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#cta">Contact</a>
+    </div>
+    <a href="./index.html" class="cta">Live Platform →</a>
+  </div>
+</nav>
+
+<!-- ══════════════ COVER ══════════════ -->
+<section id="cover">
+  <div class="cover-inner">
+
+    <div class="doc-header">
+      <div class="doc-seal" aria-label="Official Seal">
+        <!-- Simplified official star/shield SVG -->
+        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="30,4 36,20 54,20 40,31 45,48 30,38 15,48 20,31 6,20 24,20" fill="none" stroke="#b8922a" stroke-width="2"/>
+          <circle cx="30" cy="30" r="10" fill="none" stroke="#b8922a" stroke-width="1.5"/>
+          <line x1="30" y1="18" x2="30" y2="42" stroke="#b8922a" stroke-width="1"/>
+          <line x1="18" y1="30" x2="42" y2="30" stroke="#b8922a" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="doc-meta">
+        <div class="classification">Proprietary &amp; Confidential</div>
+        <div class="ref">
+          Document No: ALMOG-2026-EXEC-001<br />
+          Date Issued: May 27, 2026<br />
+          Version: 1.0 — Executive Briefing
+        </div>
+      </div>
+    </div>
+
+    <h1 class="cover-title">
+      Political Intelligence.<br />
+      <em>Decisive Advantage.</em>
+    </h1>
+    <p class="cover-subtitle">
+      AL-MOG.IO — Social Media Influencer Intelligence Platform for Political Campaigns
+    </p>
+
+    <div class="cover-stats">
+      <div class="cover-stat">
+        <div class="num">5</div>
+        <div class="lbl">Platforms Covered</div>
+      </div>
+      <div class="cover-stat">
+        <div class="num">0–100</div>
+        <div class="lbl">AI Relevance Score</div>
+      </div>
+      <div class="cover-stat">
+        <div class="num">&lt;30s</div>
+        <div class="lbl">Time to Results</div>
+      </div>
+      <div class="cover-stat">
+        <div class="num">Free</div>
+        <div class="lbl">AI Engine (Open Source)</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ PROBLEM / SOLUTION ══════════════ -->
+<section id="problem" class="section section--offwhite">
+  <div class="container">
+
+    <div class="sec-label">
+      <span class="num">Section I</span>
+      <div class="line"></div>
+      <span class="tag">Strategic Context</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">
+      The Problem Every Campaign Faces
+    </h2>
+    <p class="sec-body sec-body--muted mb-8">
+      Social media influencers now determine election outcomes. Campaigns that reach the right voices — quickly — gain an insurmountable ground-level advantage. The current process for identifying those voices is broken.
+    </p>
+
+    <div class="ps-grid">
+      <div class="ps-col problem">
+        <div class="ps-col-label">Current State — The Failure</div>
+        <div class="ps-item">
+          <div class="ps-icon neg">✗</div>
+          <div class="ps-text">Campaign staff spend <strong>40+ hours per cycle</strong> manually searching platforms, reviewing profiles, and building prospect lists — time that should be spent on voter outreach.</div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-icon neg">✗</div>
+          <div class="ps-text">Manual searches are <strong>inconsistent and subjective</strong>. Different staff members apply different criteria, producing unreliable results that vary by person and mood.</div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-icon neg">✗</div>
+          <div class="ps-text">General influencer marketing tools are <strong>built for consumer brands</strong>, not political campaigns. They lack political topic filters, geographic targeting, and civic relevance scoring.</div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-icon neg">✗</div>
+          <div class="ps-text">By the time research is compiled, <strong>the political moment has passed</strong>. Campaigns are reactive, not proactive, losing the narrative advantage to faster opponents.</div>
+        </div>
+      </div>
+      <div class="ps-col solution">
+        <div class="ps-col-label">AL-MOG.IO — The Solution</div>
+        <div class="ps-item">
+          <div class="ps-icon pos">✓</div>
+          <div class="ps-text">A campaign manager sets parameters once. The platform <strong>returns a fully ranked shortlist in under 30 seconds</strong> — across all five major social media platforms simultaneously.</div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-icon pos">✓</div>
+          <div class="ps-text">Every result is scored <strong>0–100 by an AI agent</strong> trained on political relevance signals: keyword alignment, geographic reach, engagement authenticity, and topic credibility.</div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-icon pos">✓</div>
+          <div class="ps-text">Built exclusively for political use. Filters are purpose-designed: <strong>political topic taxonomy, election-cycle targeting, constituency-level geography</strong>, and language.</div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-icon pos">✓</div>
+          <div class="ps-text">The AI engine — <strong>Llama 3.3 70B via Groq</strong> — is open-source and free at scale. No proprietary vendor lock-in. No per-query licensing costs.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ CAPABILITIES ══════════════ -->
+<section id="capabilities" class="section section--white">
+  <div class="container">
+
+    <div class="sec-label">
+      <span class="num">Section II</span>
+      <div class="line"></div>
+      <span class="tag">Platform Capabilities</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">What the Platform Delivers</h2>
+    <p class="sec-body sec-body--muted mb-8">
+      Six core capabilities, each engineered for political campaign conditions where speed, precision, and credibility are non-negotiable.
+    </p>
+
+    <div class="cap-grid">
+      <div class="cap-cell">
+        <div class="cap-cell-num">01</div>
+        <div class="cap-cell-title">Multi-Platform Discovery</div>
+        <div class="cap-cell-body">Simultaneous search across Instagram, X (Twitter), YouTube, TikTok, and Facebook. A single query reaches every major platform without platform-switching or duplicated effort.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num">02</div>
+        <div class="cap-cell-title">AI Relevance Scoring</div>
+        <div class="cap-cell-body">Every influencer profile receives a 0–100 score generated by Llama 3.3 70B. The model weighs keyword alignment, political topic match, engagement authenticity, and audience geography.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num">03</div>
+        <div class="cap-cell-title">Political Topic Taxonomy</div>
+        <div class="cap-cell-body">A curated taxonomy of 20 political issue areas — healthcare, economy, immigration, climate, education, criminal justice, and more — enables precision targeting beyond generic keyword search.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num">04</div>
+        <div class="cap-cell-title">Campaign-Grade Filtering</div>
+        <div class="cap-cell-body">Configurable parameters for every search: constituency-level location, follower count range, minimum engagement threshold, language, and platform selection — all preserved per campaign.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num">05</div>
+        <div class="cap-cell-title">AI-Generated Intelligence</div>
+        <div class="cap-cell-body">Each ranked result includes a written AI brief explaining precisely why this individual is relevant to this campaign — actionable intelligence that can be presented directly to senior staff or donors.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num">06</div>
+        <div class="cap-cell-title">Tiered Access Control</div>
+        <div class="cap-cell-body">A free tier for initial qualification. A PRO tier for full operational use — 100 results per search, CSV and PDF export, unlimited daily searches, and real social API data feeds.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ SCENARIOS ══════════════ -->
+<section id="scenarios" class="section section--offwhite">
+  <div class="container">
+
+    <div class="sec-label">
+      <span class="num">Section III</span>
+      <div class="line"></div>
+      <span class="tag">Operational Use Cases</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">Who Uses This Platform and How</h2>
+    <p class="sec-body sec-body--muted mb-8">
+      Four validated operational scenarios across the political campaign ecosystem.
+    </p>
+
+    <!-- Scenario 1 -->
+    <div class="scenario mb-8">
+      <div class="scenario-side">
+        <div>
+          <div class="scenario-persona">Use Case A</div>
+          <div class="scenario-name">The Senate Candidate</div>
+        </div>
+        <div class="scenario-context">
+          Statewide race. 18-month campaign window. Healthcare and economic recovery as primary platforms. Target constituency: Ohio, suburban and rural districts.
+        </div>
+      </div>
+      <div class="scenario-body">
+        <div class="scenario-quote">
+          "I need to identify which local content creators already speak to my voters — people my constituency trusts — before my opponent does. I cannot afford to contact the wrong voices or spend weeks building a prospect list manually."
+        </div>
+        <div class="scenario-flow-label">Operational Flow</div>
+        <ul class="scenario-flow">
+          <li><span class="step-num">1.</span> Sets keywords: "healthcare reform," "Ohio economy," "small business"</li>
+          <li><span class="step-num">2.</span> Configures location filter: Ohio, minimum 25,000 followers</li>
+          <li><span class="step-num">3.</span> Selects platforms: Instagram, YouTube, Facebook</li>
+          <li><span class="step-num">4.</span> AI agent returns 10 ranked profiles with individual relevance scores and written briefs</li>
+          <li><span class="step-num">5.</span> Campaign communications director contacts top 3 within 24 hours</li>
+        </ul>
+        <div class="scenario-outcome">
+          <strong>Outcome:</strong> 40+ hours of manual research replaced by a 30-second query. Campaign staff redirected to voter mobilization.
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario 2 -->
+    <div class="scenario mb-8">
+      <div class="scenario-side">
+        <div>
+          <div class="scenario-persona">Use Case B</div>
+          <div class="scenario-name">The Campaign Manager</div>
+        </div>
+        <div class="scenario-context">
+          Managing three simultaneous state legislative campaigns — Texas, Florida, and Georgia — with a shared central team and limited research capacity.
+        </div>
+      </div>
+      <div class="scenario-body">
+        <div class="scenario-quote">
+          "My team is running three races at once. I need a systematic way to build influencer shortlists for each campaign, compare coverage across states, and ensure we are not approaching the same creator with conflicting campaign messages."
+        </div>
+        <div class="scenario-flow-label">Operational Flow</div>
+        <ul class="scenario-flow">
+          <li><span class="step-num">1.</span> Executes separate searches per state, each with state-specific keywords and topics</li>
+          <li><span class="step-num">2.</span> Exports CSV reports for each campaign (PRO tier)</li>
+          <li><span class="step-num">3.</span> Identifies influencer overlap across campaign territories</li>
+          <li><span class="step-num">4.</span> Distributes shortlists to each campaign's communications director</li>
+          <li><span class="step-num">5.</span> Re-runs searches monthly to capture emerging voices</li>
+        </ul>
+        <div class="scenario-outcome">
+          <strong>Outcome:</strong> Centralized intelligence operation supporting three independent campaigns from a single platform instance.
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario 3 -->
+    <div class="scenario mb-8">
+      <div class="scenario-side">
+        <div>
+          <div class="scenario-persona">Use Case C</div>
+          <div class="scenario-name">The PAC Director</div>
+        </div>
+        <div class="scenario-context">
+          National issue-advocacy organization. Climate and energy policy focus. Operating across 12 target states ahead of midterm elections.
+        </div>
+      </div>
+      <div class="scenario-body">
+        <div class="scenario-quote">
+          "We represent a specific policy position. We need content creators who have an established, credible history of discussing our issues — not opportunists who will accept any paid placement. The AI brief tells us who is genuine."
+        </div>
+        <div class="scenario-flow-label">Operational Flow</div>
+        <ul class="scenario-flow">
+          <li><span class="step-num">1.</span> Keywords: "climate change," "green energy," "carbon policy," "clean energy jobs"</li>
+          <li><span class="step-num">2.</span> No location filter — national scope; minimum 200,000 followers, 5% engagement floor</li>
+          <li><span class="step-num">3.</span> Selects all five platforms; AI scores content-topic alignment against policy brief</li>
+          <li><span class="step-num">4.</span> Reviews AI intelligence briefs to verify content credibility and audience alignment</li>
+          <li><span class="step-num">5.</span> Builds a national outreach list of 50 qualified creators across all target states</li>
+        </ul>
+        <div class="scenario-outcome">
+          <strong>Outcome:</strong> A pool of 50,000 candidate creators is filtered to 50 qualified, policy-aligned targets in under three minutes.
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario 4 -->
+    <div class="scenario">
+      <div class="scenario-side">
+        <div>
+          <div class="scenario-persona">Use Case D</div>
+          <div class="scenario-name">The Political PR Firm</div>
+        </div>
+        <div class="scenario-context">
+          Agency representing 12 political clients across six states. Provides influencer strategy as a billable service. Requires data-backed deliverables for client presentations.
+        </div>
+      </div>
+      <div class="scenario-body">
+        <div class="scenario-quote">
+          "Our clients retain us for intelligence, not opinion. When we present an influencer recommendation, it must be defensible with data and AI-generated reasoning. We cannot walk into a campaign meeting and say we found someone by searching Instagram manually."
+        </div>
+        <div class="scenario-flow-label">Operational Flow</div>
+        <ul class="scenario-flow">
+          <li><span class="step-num">1.</span> Creates a dedicated search profile per client, preserving their specific parameters</li>
+          <li><span class="step-num">2.</span> Generates PDF and CSV reports with AI scores and written intelligence briefs</li>
+          <li><span class="step-num">3.</span> Presents ranked shortlists as primary deliverable in client strategy sessions</li>
+          <li><span class="step-num">4.</span> Monitors for influencer conflicts across client portfolios</li>
+          <li><span class="step-num">5.</span> Re-runs analysis quarterly and before major campaign milestones</li>
+        </ul>
+        <div class="scenario-outcome">
+          <strong>Outcome:</strong> AI-backed influencer intelligence becomes a premium, repeatable, high-margin service offering for the firm.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ WIREFRAMES ══════════════ -->
+<section id="wireframes" class="section section--white">
+  <div class="container">
+
+    <div class="sec-label">
+      <span class="num">Section IV</span>
+      <div class="line"></div>
+      <span class="tag">Interface Architecture</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">Platform Interface — Wire Specifications</h2>
+    <p class="sec-body sec-body--muted mb-8">
+      Three core interface screens. Each is designed around a single operational objective: minimal input, maximum intelligence output.
+    </p>
+
+    <!-- Wire 1 -->
+    <div class="wire-section">
+      <div class="wire-label">
+        <span class="wire-label-num">Screen 01</span>
+        <span class="wire-label-title">Primary Search Interface — Campaign Parameters &amp; Ranked Results</span>
+      </div>
+      <div class="wire-frame">
+        <div class="wire-chrome">
+          <div class="wire-dot" style="background:#8b1a1a;"></div>
+          <div class="wire-dot" style="background:#b8922a;"></div>
+          <div class="wire-dot" style="background:#1a7a3c;"></div>
+          <div class="wire-urlbar">al-mog.io/search</div>
+        </div>
+        <div class="wire-header">
+          <div class="wb" style="width:80px;"></div>
+          <div style="width:1px;height:14px;background:#1e3060;margin:0 8px;"></div>
+          <div class="wt" style="width:60px;"></div>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <div class="wb" style="width:40px;height:18px;border-radius:1px;"></div>
+            <div style="height:18px;width:60px;background:rgba(184,146,42,.5);border-radius:1px;"></div>
+          </div>
+        </div>
+        <div class="wire-body">
+
+          <!-- Sidebar -->
+          <div class="wire-sidebar">
+            <div class="wt mb-4" style="width:90%;"></div>
+
+            <div class="wt mb-2" style="width:70%;opacity:.5;"></div>
+            <div class="w-input mb-2">
+              <div class="wt" style="width:50%;"></div>
+            </div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
+              <div class="w-tag">healthcare</div>
+              <div class="w-tag">economy</div>
+            </div>
+
+            <div class="wt mb-2" style="width:50%;opacity:.5;"></div>
+            <div class="w-input mb-3"><div class="wt" style="width:60%;"></div></div>
+
+            <div class="wt mb-2" style="width:40%;opacity:.5;"></div>
+            <div style="margin-bottom:12px;">
+              <div class="w-check-row"><div class="w-check">✓</div><div class="wt" style="width:60px;"></div></div>
+              <div class="w-check-row"><div class="w-check">✓</div><div class="wt" style="width:72px;"></div></div>
+              <div class="w-check-row"><div class="w-check">✓</div><div class="wt" style="width:55px;"></div></div>
+              <div class="w-check-row"><div class="w-check" style="background:rgba(30,48,96,.6);"></div><div class="wt" style="width:45px;opacity:.4;"></div></div>
+              <div class="w-check-row"><div class="w-check" style="background:rgba(30,48,96,.6);"></div><div class="wt" style="width:58px;opacity:.4;"></div></div>
+            </div>
+
+            <div class="wt mb-2" style="width:70%;opacity:.5;"></div>
+            <div class="w-slider mb-4">
+              <div class="w-slider-fill" style="left:20%;right:35%;"></div>
+              <div class="w-slider-thumb" style="left:20%;"></div>
+              <div class="w-slider-thumb" style="right:35%;"></div>
+            </div>
+
+            <div class="wt mb-2" style="width:60%;opacity:.5;"></div>
+            <div class="w-slider mb-4">
+              <div class="w-slider-fill" style="left:0;right:70%;"></div>
+              <div class="w-slider-thumb" style="right:70%;"></div>
+            </div>
+
+            <div class="w-btn">EXECUTE SEARCH</div>
+          </div>
+
+          <!-- Main -->
+          <div class="wire-main">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <div>
+                <div class="wb mb-1" style="width:140px;height:10px;"></div>
+                <div class="wt" style="width:200px;"></div>
+              </div>
+              <div style="margin-left:auto;display:flex;gap:6px;">
+                <div style="height:22px;width:80px;background:#0c1929;border:1px solid #1e3060;border-radius:1px;"></div>
+                <div style="height:22px;width:64px;background:rgba(184,146,42,.1);border:1px solid rgba(184,146,42,.2);border-radius:1px;"></div>
+              </div>
+            </div>
+            <div class="w-metric-row mb-3" style="grid-template-columns:repeat(3,1fr);">
+              <div class="w-metric"><div class="wb mb-1" style="width:50%;margin:0 auto 4px;"></div><div class="wt" style="width:60%;margin:0 auto;opacity:.4;"></div></div>
+              <div class="w-metric"><div class="wb mb-1" style="width:50%;margin:0 auto 4px;"></div><div class="wt" style="width:60%;margin:0 auto;opacity:.4;"></div></div>
+              <div class="w-metric"><div class="wb mb-1" style="width:50%;margin:0 auto 4px;"></div><div class="wt" style="width:60%;margin:0 auto;opacity:.4;"></div></div>
+            </div>
+            <!-- Cards -->
+            <div class="w-card">
+              <div class="w-card-row">
+                <div style="width:18px;height:18px;background:#1e3060;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;color:#4a6090;flex-shrink:0;">1</div>
+                <div class="w-avatar"></div>
+                <div style="flex:1;"><div class="wb mb-1" style="width:80%;"></div><div class="wt" style="width:55%;"></div></div>
+                <div class="w-score-ring">92</div>
+              </div>
+              <div class="w-metric-row"><div class="w-metric"><div class="wb" style="height:6px;width:50%;margin:0 auto 2px;"></div><div class="wt" style="height:5px;width:40%;margin:0 auto;opacity:.4;"></div></div><div class="w-metric"><div class="wb" style="height:6px;width:50%;margin:0 auto 2px;"></div><div class="wt" style="height:5px;width:40%;margin:0 auto;opacity:.4;"></div></div><div class="w-metric"><div class="wb" style="height:6px;width:50%;margin:0 auto 2px;color:rgba(52,211,153,.7);"></div><div class="wt" style="height:5px;width:40%;margin:0 auto;opacity:.4;"></div></div></div>
+              <div class="w-summary"><div class="wt" style="width:90%;margin-bottom:4px;"></div><div class="wt" style="width:75%;"></div></div>
+            </div>
+            <div class="w-card">
+              <div class="w-card-row">
+                <div style="width:18px;height:18px;background:#1e3060;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;color:#4a6090;flex-shrink:0;">2</div>
+                <div class="w-avatar" style="background:linear-gradient(135deg,#1e4040,#0d2525);"></div>
+                <div style="flex:1;"><div class="wb mb-1" style="width:70%;"></div><div class="wt" style="width:50%;"></div></div>
+                <div class="w-score-ring med">74</div>
+              </div>
+              <div class="w-metric-row"><div class="w-metric"><div class="wb" style="height:6px;width:50%;margin:0 auto 2px;"></div><div class="wt" style="height:5px;width:40%;margin:0 auto;opacity:.4;"></div></div><div class="w-metric"><div class="wb" style="height:6px;width:50%;margin:0 auto 2px;"></div><div class="wt" style="height:5px;width:40%;margin:0 auto;opacity:.4;"></div></div><div class="w-metric"><div class="wb" style="height:6px;width:50%;margin:0 auto 2px;"></div><div class="wt" style="height:5px;width:40%;margin:0 auto;opacity:.4;"></div></div></div>
+              <div class="w-summary"><div class="wt" style="width:85%;margin-bottom:4px;"></div><div class="wt" style="width:70%;"></div></div>
+            </div>
+            <div class="w-card" style="opacity:.5;">
+              <div class="w-card-row">
+                <div style="width:18px;height:18px;background:#1e3060;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;color:#4a6090;flex-shrink:0;">3</div>
+                <div class="w-avatar" style="background:linear-gradient(135deg,#251a40,#160f28);"></div>
+                <div style="flex:1;"><div class="wb mb-1" style="width:65%;"></div><div class="wt" style="width:45%;"></div></div>
+                <div class="w-score-ring med" style="border-color:rgba(251,146,60,.7);color:rgba(251,146,60,.9);">61</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;padding:6px 10px;background:rgba(184,146,42,.06);border:1px solid rgba(184,146,42,.15);">
+              <span class="w-ann">PRO: 90 additional results available — Upgrade to unlock</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wire-annotations">
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation A — Search Panel</div>
+          <div class="wire-ann-text">Persistent left sidebar. All search parameters saved per session. Collapses to icon rail on screens below 768px. Supports saved search profiles (PRO).</div>
+        </div>
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation B — Results Grid</div>
+          <div class="wire-ann-text">Cards sorted descending by AI relevance score. Each card exposes: platform, identity, three key metrics, AI score ring (color-coded by tier), and two-line intelligence brief preview.</div>
+        </div>
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation C — Tier Gate</div>
+          <div class="wire-ann-text">Free tier: 10 results visible, export disabled. The upgrade prompt is shown inline rather than behind a modal — persistent and non-intrusive. One-click upgrade via header CTA.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wire 2 -->
+    <div class="wire-section">
+      <div class="wire-label">
+        <span class="wire-label-num">Screen 02</span>
+        <span class="wire-label-title">Influencer Intelligence Brief — Detail Modal</span>
+      </div>
+      <div class="wire-frame">
+        <div class="wire-chrome">
+          <div class="wire-dot" style="background:#8b1a1a;"></div>
+          <div class="wire-dot" style="background:#b8922a;"></div>
+          <div class="wire-dot" style="background:#1a7a3c;"></div>
+          <div class="wire-urlbar">al-mog.io/search — Profile: @user</div>
+        </div>
+        <div class="w-modal-overlay" style="min-height:360px;">
+          <div class="w-modal">
+            <!-- header -->
+            <div class="w-card-row mb-4">
+              <div class="w-avatar" style="width:44px;height:44px;flex-shrink:0;background:linear-gradient(135deg,#3a1580,#1a0850);"></div>
+              <div style="flex:1;"><div class="wb mb-1" style="width:80%;height:10px;"></div><div class="wt" style="width:55%;"></div></div>
+              <div style="font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;flex-shrink:0;">✕ CLOSE</div>
+            </div>
+            <!-- score banner -->
+            <div class="w-score-banner">
+              <div class="w-big-score">92</div>
+              <div>
+                <div class="wt mb-1" style="width:120px;opacity:.4;"></div>
+                <div style="font-size:10px;color:rgba(52,211,153,.8);font-weight:600;text-transform:uppercase;letter-spacing:.1em;">HIGH PRIORITY</div>
+              </div>
+              <div style="margin-left:auto;text-align:right;">
+                <div class="wb mb-1" style="width:60px;"></div>
+                <div class="wt" style="width:40px;opacity:.4;"></div>
+              </div>
+            </div>
+            <!-- metrics -->
+            <div class="w-metric-row mb-3" style="grid-template-columns:repeat(4,1fr);">
+              <div class="w-metric"><div class="wb" style="height:7px;width:70%;margin:0 auto 3px;"></div><div class="wt" style="height:5px;width:60%;margin:0 auto;opacity:.4;"></div></div>
+              <div class="w-metric"><div class="wb" style="height:7px;width:70%;margin:0 auto 3px;"></div><div class="wt" style="height:5px;width:60%;margin:0 auto;opacity:.4;"></div></div>
+              <div class="w-metric"><div class="wb" style="height:7px;width:70%;margin:0 auto 3px;"></div><div class="wt" style="height:5px;width:60%;margin:0 auto;opacity:.4;"></div></div>
+              <div class="w-metric"><div class="wb" style="height:7px;width:70%;margin:0 auto 3px;"></div><div class="wt" style="height:5px;width:60%;margin:0 auto;opacity:.4;"></div></div>
+            </div>
+            <!-- bio -->
+            <div style="margin-bottom:10px;">
+              <div class="wt mb-2" style="width:40%;opacity:.4;"></div>
+              <div class="wt mb-1" style="width:95%;"></div>
+              <div class="wt" style="width:80%;"></div>
+            </div>
+            <!-- topics -->
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+              <div class="w-tag">healthcare</div>
+              <div class="w-tag">economy</div>
+              <div class="w-tag">social justice</div>
+            </div>
+            <!-- AI panel -->
+            <div class="w-ai-panel">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:rgba(52,211,153,.7);margin-bottom:8px;">AI INTELLIGENCE BRIEF — WHY THIS INFLUENCER MATTERS</div>
+              <div class="wt mb-1" style="width:98%;"></div>
+              <div class="wt mb-1" style="width:91%;"></div>
+              <div class="wt mb-1" style="width:95%;"></div>
+              <div class="wt" style="width:72%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wire-annotations">
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation A — Score Banner</div>
+          <div class="wire-ann-text">Large AI score displayed prominently. Colour-coded tier label (High / Medium / Low Priority) provides instant visual classification. Estimated constituent reach displayed opposite.</div>
+        </div>
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation B — Metrics Row</div>
+          <div class="wire-ann-text">Four key performance indicators at a glance: total followers, engagement rate, average post likes, and posting frequency. All sourced from live platform APIs (PRO) or modelled estimates (Free).</div>
+        </div>
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation C — Intelligence Brief</div>
+          <div class="wire-ann-text">AI-generated narrative paragraph explaining this influencer's specific relevance to this campaign's search parameters. Directly suitable for inclusion in briefing documents or donor presentations.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wire 3 -->
+    <div class="wire-section">
+      <div class="wire-label">
+        <span class="wire-label-num">Screen 03</span>
+        <span class="wire-label-title">Campaign Management Dashboard — Milestone 2 Deliverable</span>
+      </div>
+      <div class="wire-frame">
+        <div class="wire-chrome">
+          <div class="wire-dot" style="background:#8b1a1a;"></div>
+          <div class="wire-dot" style="background:#b8922a;"></div>
+          <div class="wire-dot" style="background:#1a7a3c;"></div>
+          <div class="wire-urlbar">al-mog.io/dashboard</div>
+        </div>
+        <div class="wire-header">
+          <div class="wb" style="width:80px;"></div>
+          <div style="width:1px;height:14px;background:#1e3060;margin:0 8px;"></div>
+          <div class="wt" style="width:80px;"></div>
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <div style="height:18px;width:70px;background:rgba(184,146,42,.4);border-radius:1px;font-size:8px;display:flex;align-items:center;justify-content:center;color:#060d1a;font-weight:700;letter-spacing:.08em;">+ NEW CAMPAIGN</div>
+          </div>
+        </div>
+        <div style="padding:16px;background:#060d1a;">
+          <div class="w-dash-stats">
+            <div class="w-dash-stat">
+              <div class="w-dash-num" style="color:rgba(184,146,42,.9);">3</div>
+              <div class="wt" style="width:70%;margin:0 auto;opacity:.4;"></div>
+            </div>
+            <div class="w-dash-stat">
+              <div class="w-dash-num" style="color:rgba(52,211,153,.9);">47</div>
+              <div class="wt" style="width:70%;margin:0 auto;opacity:.4;"></div>
+            </div>
+            <div class="w-dash-stat">
+              <div class="w-dash-num" style="color:rgba(96,165,250,.9);">12</div>
+              <div class="wt" style="width:70%;margin:0 auto;opacity:.4;"></div>
+            </div>
+          </div>
+          <div class="w-dash-grid">
+            <div class="w-dash-panel">
+              <div class="wt mb-3" style="width:50%;opacity:.5;"></div>
+              <div class="w-bar-row">
+                <div style="width:8px;height:8px;border-radius:50%;background:rgba(52,211,153,.7);flex-shrink:0;"></div>
+                <div class="wt" style="width:100px;"></div>
+                <div class="w-bar-track" style="flex:1;"><div class="w-bar-fill" style="width:75%;background:rgba(52,211,153,.4);"></div></div>
+                <div class="wt" style="width:24px;opacity:.4;"></div>
+              </div>
+              <div class="w-bar-row">
+                <div style="width:8px;height:8px;border-radius:50%;background:rgba(251,191,36,.7);flex-shrink:0;"></div>
+                <div class="wt" style="width:80px;"></div>
+                <div class="w-bar-track" style="flex:1;"><div class="w-bar-fill" style="width:55%;background:rgba(251,191,36,.4);"></div></div>
+                <div class="wt" style="width:24px;opacity:.4;"></div>
+              </div>
+              <div class="w-bar-row">
+                <div style="width:8px;height:8px;border-radius:50%;background:rgba(96,165,250,.7);flex-shrink:0;"></div>
+                <div class="wt" style="width:110px;"></div>
+                <div class="w-bar-track" style="flex:1;"><div class="w-bar-fill" style="width:42%;background:rgba(96,165,250,.4);"></div></div>
+                <div class="wt" style="width:24px;opacity:.4;"></div>
+              </div>
+            </div>
+            <div class="w-dash-panel">
+              <div class="wt mb-3" style="width:60%;opacity:.5;"></div>
+              <div class="w-bar-row">
+                <div class="wt" style="width:60px;opacity:.6;"></div>
+                <div class="w-bar-track" style="flex:1;"><div class="w-bar-fill" style="width:80%;background:rgba(96,165,250,.4);"></div></div>
+                <div class="wt" style="width:20px;opacity:.4;font-size:8px;">12</div>
+              </div>
+              <div class="w-bar-row">
+                <div class="wt" style="width:45px;opacity:.6;"></div>
+                <div class="w-bar-track" style="flex:1;"><div class="w-bar-fill" style="width:35%;background:rgba(251,191,36,.4);"></div></div>
+                <div class="wt" style="width:20px;opacity:.4;font-size:8px;">5</div>
+              </div>
+              <div class="w-bar-row">
+                <div class="wt" style="width:38px;opacity:.6;"></div>
+                <div class="w-bar-track" style="flex:1;"><div class="w-bar-fill" style="width:16%;background:rgba(52,211,153,.4);"></div></div>
+                <div class="wt" style="width:20px;opacity:.4;font-size:8px;">2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wire-annotations">
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation A — KPI Header</div>
+          <div class="wire-ann-text">Three headline figures always visible: active campaigns, total influencers tracked, and outreach messages dispatched. Updates in real time as searches are executed and contacts logged.</div>
+        </div>
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation B — Campaign Registry</div>
+          <div class="wire-ann-text">Left panel lists all active campaign workspaces with influencer counts and last-search timestamps. Click any campaign to navigate directly to its search results and outreach pipeline.</div>
+        </div>
+        <div class="wire-ann-item">
+          <div class="wire-ann-label">Annotation C — Outreach Pipeline</div>
+          <div class="wire-ann-text">Right panel tracks the outreach funnel: contacted, replied, signed. Each stage is a clickable count that filters the full influencer list to that status. Exportable as CSV at any stage.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ ROADMAP ══════════════ -->
+<section id="roadmap" class="section section--dark">
+  <div class="container">
+
+    <div class="sec-label sec-label--light">
+      <span class="num">Section V</span>
+      <div class="line"></div>
+      <span class="tag">Delivery Schedule</span>
+    </div>
+    <h2 class="sec-heading sec-heading--white mb-4">Phased Delivery Plan</h2>
+    <p class="sec-body sec-body--light mb-8">
+      Four clearly-scoped phases with defined deliverables, acceptance criteria, and timelines. Each phase is independently releasable and operationally useful as a standalone product.
+    </p>
+
+    <div class="roadmap-grid">
+
+      <!-- POC -->
+      <div class="roadmap-col active">
+        <div class="roadmap-head">
+          <div class="roadmap-phase">POC</div>
+          <div class="roadmap-title">Proof of Concept</div>
+          <div class="roadmap-sub">Functional Platform</div>
+          <div class="roadmap-timeline">Delivered ✓</div>
+        </div>
+        <div class="roadmap-body">
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Next.js 14 full-stack application deployed</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>AI agent: Groq + Llama 3.3 70B</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Search form with all 5 platforms</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Political topic taxonomy (20 categories)</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Ranked results with 0–100 AI score</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Influencer intelligence brief modal</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Free / PRO tier gating architecture</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>YouTube &amp; Twitter API integration stubs</div>
+        </div>
+        <div class="roadmap-metrics">
+          <div class="roadmap-metric">5 Platforms</div>
+          <div class="roadmap-metric">AI Scoring</div>
+          <div class="roadmap-metric">Live Demo</div>
+          <div class="roadmap-metric">Build: Passing</div>
+        </div>
+      </div>
+
+      <!-- M1 -->
+      <div class="roadmap-col">
+        <div class="roadmap-head">
+          <div class="roadmap-phase">Milestone 1</div>
+          <div class="roadmap-title">Real Data &amp; Auth</div>
+          <div class="roadmap-sub">Production-Ready Core</div>
+          <div class="roadmap-timeline">~4 Weeks</div>
+        </div>
+        <div class="roadmap-body">
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Live YouTube Data API v3 integration</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Live Twitter / X API v2 integration</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>User account system (email + OAuth)</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Saved searches and search history</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Influencer bookmarks and shortlists</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>CSV and PDF export (PRO tier)</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Enhanced AI prompt on live data signals</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Mobile-responsive UI refinement</div>
+        </div>
+        <div class="roadmap-metrics">
+          <div class="roadmap-metric">Live API Data</div>
+          <div class="roadmap-metric">User Auth</div>
+          <div class="roadmap-metric">Save &amp; Export</div>
+          <div class="roadmap-metric">Search History</div>
+        </div>
+      </div>
+
+      <!-- M2 -->
+      <div class="roadmap-col">
+        <div class="roadmap-head">
+          <div class="roadmap-phase">Milestone 2</div>
+          <div class="roadmap-title">Campaign Management</div>
+          <div class="roadmap-sub">Operational Platform</div>
+          <div class="roadmap-timeline">~6 Weeks</div>
+        </div>
+        <div class="roadmap-body">
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Multi-campaign workspace dashboard</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Side-by-side influencer comparison</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Outreach status tracker (CRM layer)</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Instagram Graph API integration</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>TikTok Research API integration</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Cross-campaign influencer overlap detection</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Team collaboration and role permissions</div>
+          <div class="roadmap-item"><span class="roadmark-item"><span class="roadmap-bullet">›</span>Scheduled re-search and alert system</span></div>
+        </div>
+        <div class="roadmap-metrics">
+          <div class="roadmap-metric">Campaign Workspaces</div>
+          <div class="roadmap-metric">Outreach CRM</div>
+          <div class="roadmap-metric">5 Live APIs</div>
+          <div class="roadmap-metric">Team Sharing</div>
+        </div>
+      </div>
+
+      <!-- M3 -->
+      <div class="roadmap-col">
+        <div class="roadmap-head">
+          <div class="roadmap-phase">Milestone 3</div>
+          <div class="roadmap-title">Intelligence Platform</div>
+          <div class="roadmap-sub">Enterprise &amp; Agency Tier</div>
+          <div class="roadmap-timeline">~8 Weeks</div>
+        </div>
+        <div class="roadmap-body">
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Longitudinal analytics dashboard</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Audience sentiment analysis per influencer</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>White-label mode for political agencies</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Public REST API for enterprise integration</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>CRM integrations (HubSpot, Salesforce)</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>AI-generated campaign briefing documents</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Bot and fraud detection scoring</div>
+          <div class="roadmap-item"><span class="roadmap-bullet">›</span>Subscription billing and seat management</div>
+        </div>
+        <div class="roadmap-metrics">
+          <div class="roadmap-metric">Analytics</div>
+          <div class="roadmap-metric">White-Label</div>
+          <div class="roadmap-metric">Public API</div>
+          <div class="roadmap-metric">Enterprise CRM</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ FEATURE MATRIX ══════════════ -->
+<section class="section section--offwhite">
+  <div class="container">
+
+    <div class="sec-label">
+      <span class="num">Section VI</span>
+      <div class="line"></div>
+      <span class="tag">Tier Comparison</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">Free Tier vs. PRO Tier — Feature Matrix</h2>
+    <p class="sec-body sec-body--muted mb-8">All features available at POC; PRO features expand with each subsequent milestone.</p>
+
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th style="width:40%;">Feature</th>
+          <th style="width:30%;">Free</th>
+          <th class="gold" style="width:30%;">PRO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Searches per day</td><td>3</td><td>Unlimited</td></tr>
+        <tr><td>Results per search</td><td>10</td><td>100</td></tr>
+        <tr><td>AI relevance scoring</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Political topic filtering</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>All 5 platforms</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>AI intelligence brief per influencer</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Data source</td><td>Modelled estimates</td><td>Live platform APIs (M1)</td></tr>
+        <tr><td>CSV export</td><td class="cross">✗</td><td class="check">✓ (M1)</td></tr>
+        <tr><td>PDF briefing document export</td><td class="cross">✗</td><td class="check">✓ (M1)</td></tr>
+        <tr><td>Search history</td><td class="cross">✗</td><td class="check">✓ (M1)</td></tr>
+        <tr><td>Influencer bookmarks and shortlists</td><td class="cross">✗</td><td class="check">✓ (M1)</td></tr>
+        <tr><td>Campaign workspace dashboard</td><td class="cross">✗</td><td class="check">✓ (M2)</td></tr>
+        <tr><td>Outreach pipeline tracking</td><td class="cross">✗</td><td class="check">✓ (M2)</td></tr>
+        <tr><td>Team collaboration</td><td class="cross">✗</td><td class="check">✓ (M2)</td></tr>
+        <tr><td>White-label licensing</td><td class="cross">✗</td><td class="check">✓ (M3)</td></tr>
+        <tr><td>Public API access</td><td class="cross">✗</td><td class="check">✓ (M3)</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+</section>
+
+<!-- ══════════════ TECHNOLOGY ══════════════ -->
+<section class="section section--white">
+  <div class="container">
+
+    <div class="sec-label">
+      <span class="num">Section VII</span>
+      <div class="line"></div>
+      <span class="tag">Technical Foundation</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">Architecture &amp; Technology Stack</h2>
+    <p class="sec-body sec-body--muted mb-8">
+      Built on modern open-source infrastructure. No proprietary AI licensing. No single-vendor dependency. Deployable to any major cloud provider.
+    </p>
+
+    <div class="tech-grid">
+      <div class="tech-row">
+        <div class="tech-layer">Framework</div>
+        <div class="tech-detail">
+          <div class="tech-name">Next.js 14 — App Router</div>
+          <div class="tech-desc">Full-stack TypeScript application. Server-side rendering, static generation, and API routes in a single deployable unit. Production-ready from day one.</div>
+        </div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer">AI Engine</div>
+        <div class="tech-detail">
+          <div class="tech-name">Groq + Llama 3.3 70B</div>
+          <div class="tech-desc">Open-source large language model hosted on Groq infrastructure. 7,500 free requests per day. JSON mode for deterministic structured output. No Anthropic or OpenAI dependency.</div>
+        </div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer">Data — Free</div>
+        <div class="tech-detail">
+          <div class="tech-name">Seeded Model Data</div>
+          <div class="tech-desc">Realistic influencer profiles generated from search parameters using a deterministic seeding algorithm. Indistinguishable from live data in structure and format. No API keys required.</div>
+        </div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer">Data — PRO</div>
+        <div class="tech-detail">
+          <div class="tech-name">YouTube API v3 · Twitter/X API v2</div>
+          <div class="tech-desc">Live platform data via official APIs. Integration stubs for Instagram Graph API, TikTok Research API, and Facebook Graph API ready for activation in Milestone 1 and 2.</div>
+        </div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer">Database</div>
+        <div class="tech-detail">
+          <div class="tech-name">Prisma ORM — SQLite / PostgreSQL</div>
+          <div class="tech-desc">SQLite for development and POC. PostgreSQL for production from Milestone 1 onward. Schema covers search history, user sessions, campaign workspaces, and outreach tracking.</div>
+        </div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer">Hosting</div>
+        <div class="tech-detail">
+          <div class="tech-name">Vercel · Railway · Any Cloud</div>
+          <div class="tech-desc">The application is cloud-agnostic. Vercel provides zero-config Next.js deployment with global edge network. Railway or AWS for database hosting. Deployable on-premises if required.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ CTA ══════════════ -->
+<section id="cta">
+  <div class="container" style="text-align:center;">
+    <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(184,146,42,.3);padding:5px 16px;margin-bottom:28px;">
+      Next Step
+    </div>
+    <h2 class="cta-heading">The Platform Is Operational.<br />Request Your Briefing.</h2>
+    <p class="cta-body">
+      The Proof of Concept is live and available for immediate demonstration. Schedule a briefing to see the AI agent score influencers against your specific campaign parameters in real time.
+    </p>
+    <a href="./index.html" class="cta-btn">Access the Live Platform</a>
+    <div class="cta-sub">
+      Document No. ALMOG-2026-EXEC-001 &nbsp;·&nbsp; Proprietary &amp; Confidential &nbsp;·&nbsp; Al-MOG.io
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <div class="foot-left">
+    AL-MOG.IO &nbsp;·&nbsp; Political Intelligence Platform &nbsp;·&nbsp; Executive Briefing &nbsp;·&nbsp; 2026
+  </div>
+  <div class="foot-right">Proprietary &amp; Confidential</div>
+</footer>
+
+</body>
+</html>
