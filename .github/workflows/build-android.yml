@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build-apk:
-    name: Build Debug APK
+    name: Build Standalone APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -63,6 +63,25 @@ jobs:
           EXPO_PUBLIC_API_URL: ${{ github.event.inputs.api_url || 'https://al-mog.io' }}
         run: npx expo prebuild --platform android --clean --no-install
 
+      # ── Bundle JavaScript ─────────────────────────────────────────
+      # Critical: debug APKs do NOT embed the JS bundle by default —
+      # they expect Metro bundler to be running. We pre-bundle the JS
+      # here so the APK is fully self-contained and installable standalone.
+      - name: Bundle JavaScript into APK assets
+        working-directory: mobile
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.ts \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res/ \
+            --reset-cache
+        env:
+          EXPO_PUBLIC_API_URL: ${{ github.event.inputs.api_url || 'https://al-mog.io' }}
+          NODE_ENV: production
+
       # ── Gradle cache ─────────────────────────────────────────────
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -78,11 +97,23 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x mobile/android/gradlew
 
-      - name: Build debug APK
+      - name: Build standalone debug APK
         working-directory: mobile/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        # bundleInDebug=true tells Gradle not to re-bundle (we already did it above)
+        run: ./gradlew assembleDebug --no-daemon -PbundleInDebug=true
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4"
+
+      # ── Verify bundle is embedded ─────────────────────────────────
+      - name: Verify JS bundle is embedded in APK
+        run: |
+          APK=$(find mobile/android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          if unzip -l "$APK" | grep -q "index.android.bundle"; then
+            echo "✅ JS bundle confirmed inside APK — app is standalone"
+          else
+            echo "❌ JS bundle NOT found in APK — app will need Metro to run"
+            exit 1
+          fi
 
       # ── Upload artifact ──────────────────────────────────────────
       - name: Locate APK
@@ -95,7 +126,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: almog-debug-build-${{ github.run_number }}
+          name: almog-standalone-${{ github.run_number }}
           path: ${{ steps.find-apk.outputs.path }}
           retention-days: 30
           if-no-files-found: error
@@ -105,7 +136,9 @@ jobs:
         run: |
           APK="${{ steps.find-apk.outputs.path }}"
           SIZE=$(du -sh "$APK" 2>/dev/null | cut -f1 || echo "unknown")
-          echo "## ✅ Android APK Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Standalone Android APK — Ready to Install" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> JS bundle is embedded. No Metro / dev server required." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
@@ -113,6 +146,9 @@ jobs:
           echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| API URL | ${{ github.event.inputs.api_url || 'https://al-mog.io' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| APK Size | $SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "| JS Bundle | Embedded ✅ |" >> $GITHUB_STEP_SUMMARY
           echo "| Retention | 30 days |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Download:** Go to this workflow run → Artifacts → \`almog-debug-build-${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Download:** Actions tab → this run → Artifacts → \`almog-standalone-${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Install on Android:** Enable *Install from unknown sources* in Settings → Security, then open the APK." >> $GITHUB_STEP_SUMMARY
