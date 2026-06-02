@@ -1,0 +1,118 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - claude/political-influencer-finder-6o7cm
+      - main
+    paths:
+      - 'mobile/**'
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'Backend API base URL (e.g. https://your-deploy.vercel.app)'
+        required: false
+        default: 'https://al-mog.io'
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      # ── Checkout ─────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Node setup ───────────────────────────────────────────────
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      # ── Java setup ───────────────────────────────────────────────
+      - name: Setup Java 17 (required by Android Gradle)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # ── Android SDK ──────────────────────────────────────────────
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build tools 35
+        run: sdkmanager "build-tools;35.0.0" "platforms;android-35"
+
+      # ── Install dependencies ─────────────────────────────────────
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: npm ci
+
+      # ── Expo prebuild ────────────────────────────────────────────
+      - name: Generate Android native project (expo prebuild)
+        working-directory: mobile
+        env:
+          EXPO_PUBLIC_API_URL: ${{ github.event.inputs.api_url || 'https://al-mog.io' }}
+        run: npx expo prebuild --platform android --clean --no-install
+
+      # ── Gradle cache ─────────────────────────────────────────────
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('mobile/android/**/*.gradle*', 'mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      # ── Build APK ────────────────────────────────────────────────
+      - name: Make gradlew executable
+        run: chmod +x mobile/android/gradlew
+
+      - name: Build debug APK
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4"
+
+      # ── Upload artifact ──────────────────────────────────────────
+      - name: Locate APK
+        id: find-apk
+        run: |
+          APK=$(find mobile/android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          echo "path=$APK" >> "$GITHUB_OUTPUT"
+          echo "Found APK: $APK"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: almog-debug-build-${{ github.run_number }}
+          path: ${{ steps.find-apk.outputs.path }}
+          retention-days: 30
+          if-no-files-found: error
+
+      # ── Summary ──────────────────────────────────────────────────
+      - name: Write job summary
+        run: |
+          APK="${{ steps.find-apk.outputs.path }}"
+          SIZE=$(du -sh "$APK" 2>/dev/null | cut -f1 || echo "unknown")
+          echo "## ✅ Android APK Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | #${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| API URL | ${{ github.event.inputs.api_url || 'https://al-mog.io' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| APK Size | $SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "| Retention | 30 days |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Download:** Go to this workflow run → Artifacts → \`almog-debug-build-${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY

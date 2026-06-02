@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Al-MOG.io",
+    "slug": "al-mog-io",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0d1f3c",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d1f3c"
+    },
+    "platforms": ["android"],
+    "android": {
+      "package": "io.almog.political",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d1f3c"
+      }
+    },
+    "scheme": "almog",
+    "extra": {
+      "apiUrl": "https://al-mog.io"
+    }
+  }
+}

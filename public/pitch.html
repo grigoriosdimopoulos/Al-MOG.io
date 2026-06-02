@@ -1508,6 +1508,307 @@
   </div>
 </section>
 
+<!-- ══════════════ MOBILE APP ══════════════ -->
+<section class="section section--offwhite">
+  <div class="container">
+    <div class="sec-label">
+      <span class="num">Section VIII</span>
+      <div class="line"></div>
+      <span class="tag">Android Platform</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">Android Mobile Application</h2>
+    <p class="sec-body sec-body--muted mb-8">
+      A native Android application built in React Native, providing full platform access from any device. Included in the POC delivery. APK downloadable via automated CI/CD pipeline on every code push.
+    </p>
+    <div class="cap-grid" style="grid-template-columns:repeat(2,1fr);">
+      <div class="cap-cell">
+        <div class="cap-cell-num" style="font-size:28px;">Home</div>
+        <div class="cap-cell-title">Landing Screen</div>
+        <div class="cap-cell-body">Branded entry point with feature summary, Free vs PRO tier comparison, and direct navigation to search. Offline-capable with navy / gold design system matching the web platform.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num" style="font-size:28px;">Search</div>
+        <div class="cap-cell-title">Parameter Configuration</div>
+        <div class="cap-cell-body">Full search form: keyword tags, platform selection, follower range, engagement threshold, location, language, and political topic multi-select. Keyboard-aware scrolling. Calls the same backend API as the web platform.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num" style="font-size:28px;">Results</div>
+        <div class="cap-cell-title">Ranked Influencer List</div>
+        <div class="cap-cell-body">Scrollable list of AI-ranked cards with platform icon, relevance score ring (colour-coded by tier), follower count, engagement rate, and two-line AI brief preview. Sort by score, followers, or engagement. PRO upgrade prompt inline.</div>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-num" style="font-size:28px;">Brief</div>
+        <div class="cap-cell-title">Intelligence Detail Screen</div>
+        <div class="cap-cell-body">Full influencer profile: large AI score, estimated reach, four-metric grid, bio, political topic tags, and the complete AI-generated intelligence brief explaining specific relevance to the campaign.</div>
+      </div>
+    </div>
+    <div style="margin-top:32px;background:var(--navy);border:1px solid rgba(184,146,42,.2);border-left:4px solid var(--gold);padding:24px 28px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">CI/CD Pipeline — Automated APK Delivery</div>
+      <p style="font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:16px;">
+        Every code push to the development branch triggers an automated GitHub Actions pipeline that builds a signed debug APK and makes it available for immediate download — no developer toolchain required on the client side.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid rgba(255,255,255,.1);">
+        <div style="padding:14px;border-right:1px solid rgba(255,255,255,.1);text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;">01</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);">Push to branch</div>
+        </div>
+        <div style="padding:14px;border-right:1px solid rgba(255,255,255,.1);text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;">02</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);">Install deps + Expo prebuild</div>
+        </div>
+        <div style="padding:14px;border-right:1px solid rgba(255,255,255,.1);text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;">03</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);">Android SDK + Gradle build</div>
+        </div>
+        <div style="padding:14px;border-right:1px solid rgba(255,255,255,.1);text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;">04</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);">APK signed &amp; uploaded</div>
+        </div>
+        <div style="padding:14px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;">05</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);">Download from Actions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ INVESTMENT ══════════════ -->
+<section id="investment" class="section section--white">
+  <div class="container">
+    <div class="sec-label">
+      <span class="num">Section IX</span>
+      <div class="line"></div>
+      <span class="tag">Investment &amp; Cost Breakdown</span>
+    </div>
+    <h2 class="sec-heading sec-heading--dark mb-4">Professional Services Investment</h2>
+    <p class="sec-body sec-body--muted mb-8">
+      A transparent breakdown of the skilled labour, infrastructure, and operational costs required to design, build, test, and deliver this platform across all four phases. All rates reflect 2026 senior market rates for specialized political technology development.
+    </p>
+
+    <!-- Rate card -->
+    <div style="margin-bottom:40px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">2026 Rate Card — Specialized Roles</div>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th style="width:35%;">Role</th>
+            <th style="width:25%;">Specialization</th>
+            <th style="width:20%;">Hourly Rate</th>
+            <th style="width:20%;">Daily Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Senior Full-Stack Engineer</td><td>Next.js, TypeScript, APIs</td><td>$185 / hr</td><td>$1,480</td></tr>
+          <tr><td>AI / ML Engineer</td><td>LLM integration, prompt engineering</td><td>$225 / hr</td><td>$1,800</td></tr>
+          <tr><td>Mobile Engineer</td><td>React Native, Android / iOS</td><td>$190 / hr</td><td>$1,520</td></tr>
+          <tr><td>UX / UI Designer</td><td>Political tech, dark UI systems</td><td>$165 / hr</td><td>$1,320</td></tr>
+          <tr><td>DevOps / Platform Engineer</td><td>CI/CD, cloud infrastructure</td><td>$165 / hr</td><td>$1,320</td></tr>
+          <tr><td>QA Engineer</td><td>Mobile and API testing</td><td>$140 / hr</td><td>$1,120</td></tr>
+          <tr><td>Technical Project Manager</td><td>Political campaign tech</td><td>$160 / hr</td><td>$1,280</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Phase 1 / POC breakdown -->
+    <div style="margin-bottom:48px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--border);">
+        <span style="background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;">POC — DELIVERED</span>
+        <span style="font-family:'EB Garamond',serif;font-size:22px;font-weight:700;color:var(--navy);">Proof of Concept + Android App + CI/CD Pipeline</span>
+        <span style="margin-left:auto;font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:var(--navy);">$27,500</span>
+      </div>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th style="width:30%;">Deliverable</th>
+            <th style="width:20%;">Role</th>
+            <th style="width:10%;">Hours</th>
+            <th style="width:15%;">Rate</th>
+            <th style="width:25%;">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Technical architecture &amp; API design</td><td>Senior Engineer</td><td>16</td><td>$185</td><td>$2,960</td></tr>
+          <tr><td>Design system — web (dark navy/gold)</td><td>UX/UI Designer</td><td>20</td><td>$165</td><td>$3,300</td></tr>
+          <tr><td>Web platform — Next.js full-stack build</td><td>Senior Engineer</td><td>72</td><td>$185</td><td>$13,320</td></tr>
+          <tr><td>AI agent engineering (Groq + Llama 3.3)</td><td>AI/ML Engineer</td><td>20</td><td>$225</td><td>$4,500</td></tr>
+          <tr><td>Social platform API integration stubs</td><td>Senior Engineer</td><td>14</td><td>$185</td><td>$2,590</td></tr>
+          <tr><td>Android mobile app — React Native (4 screens)</td><td>Mobile Engineer</td><td>36</td><td>$190</td><td>$6,840</td></tr>
+          <tr><td>CI/CD pipeline — GitHub Actions APK build</td><td>DevOps Engineer</td><td>10</td><td>$165</td><td>$1,650</td></tr>
+          <tr><td>Executive pitch deck &amp; cost documentation</td><td>PM + Designer</td><td>14</td><td>$160</td><td>$2,240</td></tr>
+          <tr><td>QA &amp; functional testing (web + mobile)</td><td>QA Engineer</td><td>16</td><td>$140</td><td>$2,240</td></tr>
+          <tr><td>Project management &amp; delivery oversight</td><td>Tech PM</td><td>18</td><td>$160</td><td>$2,880</td></tr>
+          <tr style="background:rgba(13,31,60,.05);"><td colspan="4" style="font-weight:700;color:var(--navy);">POC Phase Total (236 hours)</td><td style="font-weight:800;color:var(--navy);font-size:16px;">$42,520</td></tr>
+          <tr style="background:rgba(184,146,42,.06);"><td colspan="4" style="font-weight:700;color:var(--gold);">Early Partnership Rate (applied)</td><td style="font-weight:800;color:var(--gold);font-size:16px;">−$15,020</td></tr>
+          <tr style="background:var(--navy);"><td colspan="4" style="font-weight:800;color:var(--gold);font-size:14px;letter-spacing:.05em;">PHASE 1 INVESTMENT</td><td style="font-weight:900;color:var(--white);font-size:20px;">$27,500</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- M1 breakdown -->
+    <div style="margin-bottom:48px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--border);">
+        <span style="background:#162847;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;">MILESTONE 1</span>
+        <span style="font-family:'EB Garamond',serif;font-size:22px;font-weight:700;color:var(--navy);">Real Data, Authentication &amp; Export</span>
+        <span style="margin-left:auto;font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:var(--navy);">$31,000</span>
+      </div>
+      <table class="matrix">
+        <thead>
+          <tr><th style="width:35%;">Deliverable</th><th style="width:20%;">Role</th><th style="width:10%;">Hours</th><th style="width:15%;">Rate</th><th style="width:20%;">Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>YouTube Data API v3 — live integration</td><td>Senior Engineer</td><td>18</td><td>$185</td><td>$3,330</td></tr>
+          <tr><td>Twitter / X API v2 — live integration</td><td>Senior Engineer</td><td>16</td><td>$185</td><td>$2,960</td></tr>
+          <tr><td>User authentication system (email + OAuth)</td><td>Senior Engineer</td><td>24</td><td>$185</td><td>$4,440</td></tr>
+          <tr><td>Search history &amp; saved shortlists</td><td>Senior Engineer</td><td>20</td><td>$185</td><td>$3,700</td></tr>
+          <tr><td>CSV export engine (PRO tier)</td><td>Senior Engineer</td><td>12</td><td>$185</td><td>$2,220</td></tr>
+          <tr><td>PDF briefing document generator</td><td>Senior Engineer + Designer</td><td>20</td><td>$175</td><td>$3,500</td></tr>
+          <tr><td>Enhanced AI prompts on live data signals</td><td>AI/ML Engineer</td><td>16</td><td>$225</td><td>$3,600</td></tr>
+          <tr><td>Mobile app — M1 features (auth, saved)</td><td>Mobile Engineer</td><td>24</td><td>$190</td><td>$4,560</td></tr>
+          <tr><td>QA &amp; regression testing</td><td>QA Engineer</td><td>20</td><td>$140</td><td>$2,800</td></tr>
+          <tr><td>Project management</td><td>Tech PM</td><td>16</td><td>$160</td><td>$2,560</td></tr>
+          <tr style="background:var(--navy);"><td colspan="4" style="font-weight:800;color:var(--gold);font-size:14px;letter-spacing:.05em;">MILESTONE 1 INVESTMENT</td><td style="font-weight:900;color:var(--white);font-size:20px;">$31,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- M2 breakdown -->
+    <div style="margin-bottom:48px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--border);">
+        <span style="background:#1e3560;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;">MILESTONE 2</span>
+        <span style="font-family:'EB Garamond',serif;font-size:22px;font-weight:700;color:var(--navy);">Campaign Management &amp; Outreach CRM</span>
+        <span style="margin-left:auto;font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:var(--navy);">$38,500</span>
+      </div>
+      <table class="matrix">
+        <thead>
+          <tr><th style="width:35%;">Deliverable</th><th style="width:20%;">Role</th><th style="width:10%;">Hours</th><th style="width:15%;">Rate</th><th style="width:20%;">Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Multi-campaign workspace dashboard</td><td>Senior Engineer + Designer</td><td>32</td><td>$180</td><td>$5,760</td></tr>
+          <tr><td>Side-by-side influencer comparison tool</td><td>Senior Engineer</td><td>20</td><td>$185</td><td>$3,700</td></tr>
+          <tr><td>Outreach pipeline CRM (contacted / replied / signed)</td><td>Senior Engineer</td><td>28</td><td>$185</td><td>$5,180</td></tr>
+          <tr><td>Instagram Graph API integration</td><td>Senior Engineer</td><td>20</td><td>$185</td><td>$3,700</td></tr>
+          <tr><td>TikTok Research API integration</td><td>Senior Engineer</td><td>20</td><td>$185</td><td>$3,700</td></tr>
+          <tr><td>Cross-campaign overlap detection algorithm</td><td>AI/ML Engineer</td><td>16</td><td>$225</td><td>$3,600</td></tr>
+          <tr><td>Team collaboration &amp; role permissions</td><td>Senior Engineer</td><td>20</td><td>$185</td><td>$3,700</td></tr>
+          <tr><td>Scheduled re-search &amp; alert system</td><td>Senior Engineer</td><td>16</td><td>$185</td><td>$2,960</td></tr>
+          <tr><td>Mobile app — campaign management screens</td><td>Mobile Engineer</td><td>28</td><td>$190</td><td>$5,320</td></tr>
+          <tr><td>QA, UAT &amp; project management</td><td>QA + PM</td><td>24</td><td>$150</td><td>$3,600</td></tr>
+          <tr style="background:var(--navy);"><td colspan="4" style="font-weight:800;color:var(--gold);font-size:14px;letter-spacing:.05em;">MILESTONE 2 INVESTMENT</td><td style="font-weight:900;color:var(--white);font-size:20px;">$38,500</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- M3 breakdown -->
+    <div style="margin-bottom:48px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--border);">
+        <span style="background:#8b1a1a;color:#fca5a5;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;">MILESTONE 3</span>
+        <span style="font-family:'EB Garamond',serif;font-size:22px;font-weight:700;color:var(--navy);">Enterprise Intelligence Platform</span>
+        <span style="margin-left:auto;font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:var(--navy);">$44,000</span>
+      </div>
+      <table class="matrix">
+        <thead>
+          <tr><th style="width:35%;">Deliverable</th><th style="width:20%;">Role</th><th style="width:10%;">Hours</th><th style="width:15%;">Rate</th><th style="width:20%;">Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Longitudinal analytics dashboard</td><td>Senior Engineer + Designer</td><td>40</td><td>$180</td><td>$7,200</td></tr>
+          <tr><td>Audience sentiment analysis engine</td><td>AI/ML Engineer</td><td>32</td><td>$225</td><td>$7,200</td></tr>
+          <tr><td>White-label licensing system</td><td>Senior Engineer</td><td>28</td><td>$185</td><td>$5,180</td></tr>
+          <tr><td>Public REST API — enterprise tier</td><td>Senior Engineer</td><td>24</td><td>$185</td><td>$4,440</td></tr>
+          <tr><td>CRM integrations (HubSpot, Salesforce)</td><td>Senior Engineer</td><td>24</td><td>$185</td><td>$4,440</td></tr>
+          <tr><td>Bot / fraud detection scoring model</td><td>AI/ML Engineer</td><td>20</td><td>$225</td><td>$4,500</td></tr>
+          <tr><td>Subscription billing &amp; seat management</td><td>Senior Engineer</td><td>20</td><td>$185</td><td>$3,700</td></tr>
+          <tr><td>iOS app (App Store submission)</td><td>Mobile Engineer</td><td>32</td><td>$190</td><td>$6,080</td></tr>
+          <tr><td>Security audit &amp; penetration testing</td><td>Security Specialist</td><td>16</td><td>$250</td><td>$4,000</td></tr>
+          <tr><td>QA, documentation &amp; project management</td><td>QA + PM</td><td>28</td><td>$150</td><td>$4,200</td></tr>
+          <tr style="background:var(--navy);"><td colspan="4" style="font-weight:800;color:var(--gold);font-size:14px;letter-spacing:.05em;">MILESTONE 3 INVESTMENT</td><td style="font-weight:900;color:var(--white);font-size:20px;">$44,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total + ongoing -->
+    <div style="background:var(--navy);border:2px solid var(--gold);padding:40px;margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;">Total Investment Summary</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(184,146,42,.2);border-left:1px solid rgba(184,146,42,.2);">
+        <div style="padding:20px;border-right:1px solid rgba(184,146,42,.2);border-bottom:1px solid rgba(184,146,42,.2);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,146,42,.6);margin-bottom:8px;">POC (Delivered)</div>
+          <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:var(--gold);">$27,500</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Web + Mobile + CI/CD</div>
+        </div>
+        <div style="padding:20px;border-right:1px solid rgba(184,146,42,.2);border-bottom:1px solid rgba(184,146,42,.2);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,146,42,.6);margin-bottom:8px;">Milestone 1</div>
+          <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:rgba(255,255,255,.8);">$31,000</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Live APIs + Auth + Export</div>
+        </div>
+        <div style="padding:20px;border-right:1px solid rgba(184,146,42,.2);border-bottom:1px solid rgba(184,146,42,.2);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,146,42,.6);margin-bottom:8px;">Milestone 2</div>
+          <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:rgba(255,255,255,.8);">$38,500</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Campaign CRM + 5 Live APIs</div>
+        </div>
+        <div style="padding:20px;border-bottom:1px solid rgba(184,146,42,.2);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,146,42,.6);margin-bottom:8px;">Milestone 3</div>
+          <div style="font-family:'EB Garamond',serif;font-size:28px;font-weight:800;color:rgba(255,255,255,.8);">$44,000</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Enterprise + iOS + API</div>
+        </div>
+        <div style="grid-column:1/-1;padding:24px;border-right:1px solid rgba(184,146,42,.2);">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(184,146,42,.8);margin-bottom:6px;">Full Platform — All Four Phases</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.5);">Web platform · Android app · iOS app · AI engine · All API integrations · White-label · Enterprise API · 12-month delivery</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;margin-left:32px;">
+              <div style="font-family:'EB Garamond',serif;font-size:48px;font-weight:900;color:var(--gold);line-height:1;">$141,000</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Total project investment</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ongoing costs -->
+    <div style="margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Monthly Operational Costs (Post-Delivery)</div>
+      <table class="matrix">
+        <thead>
+          <tr><th style="width:35%;">Service</th><th style="width:30%;">Provider</th><th style="width:15%;">Tier</th><th style="width:20%;">Monthly Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>AI Inference (Groq — Llama 3.3 70B)</td><td>Groq</td><td>Free / Pro</td><td>$0 – $50</td></tr>
+          <tr><td>Web hosting (Next.js + serverless API)</td><td>Vercel Pro</td><td>Production</td><td>$20</td></tr>
+          <tr><td>Database (PostgreSQL managed)</td><td>Railway / Neon</td><td>Production</td><td>$25 – $75</td></tr>
+          <tr><td>YouTube Data API v3</td><td>Google Cloud</td><td>10K units/day free</td><td>$0 – $30</td></tr>
+          <tr><td>Twitter / X API v2</td><td>X Corp</td><td>Basic tier</td><td>$100</td></tr>
+          <tr><td>Instagram Graph API</td><td>Meta</td><td>Approved access</td><td>$0</td></tr>
+          <tr><td>TikTok Research API</td><td>TikTok</td><td>Approved access</td><td>$0</td></tr>
+          <tr><td>CI/CD build minutes</td><td>GitHub Actions</td><td>2,000 min/mo free</td><td>$0 – $16</td></tr>
+          <tr><td>Domain, SSL, CDN</td><td>Cloudflare</td><td>Pro</td><td>$20</td></tr>
+          <tr style="background:rgba(13,31,60,.05);"><td colspan="3" style="font-weight:700;color:var(--navy);">Estimated Monthly Total</td><td style="font-weight:800;color:var(--navy);">$165 – $311 / mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Value justification -->
+    <div style="background:#faf8f4;border:1px solid var(--border);border-left:4px solid var(--gold);padding:28px 32px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Value Justification</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Research Time Saved</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;">A single campaign staffer at $60K/year costs $28.85/hr. Replacing 40 hours of manual research per cycle recovers $1,154 per search cycle. The platform pays for itself within the first 24 uses.</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Competitor Pricing</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;">Comparable general-purpose influencer platforms (Brandwatch, Meltwater, Modash) charge $1,000–$5,000/month with no political specialization. Al-MOG.io delivers purpose-built capability at a fraction of the cost.</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Campaign Spend Context</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;">U.S. federal campaigns spent an average of $4.2M on digital media in 2024. The full platform investment of $141,000 represents 3.4% of a median federal campaign's digital budget — for a permanent, proprietary intelligence asset.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 <!-- ══════════════ CTA ══════════════ -->
 <section id="cta">
   <div class="container" style="text-align:center;">
