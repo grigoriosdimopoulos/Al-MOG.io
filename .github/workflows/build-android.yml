@@ -48,13 +48,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android build tools 35
+      - name: Install Android build tools
         run: sdkmanager "build-tools;35.0.0" "platforms;android-35"
 
       # ── Install dependencies ─────────────────────────────────────
       - name: Install mobile dependencies
         working-directory: mobile
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # ── Expo prebuild ────────────────────────────────────────────
       - name: Generate Android native project (expo prebuild)
