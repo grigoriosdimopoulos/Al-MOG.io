@@ -1,150 +1,213 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, SafeAreaView,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Share, Alert,
 } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../types';
-import { colors, PLATFORM_ICONS, PLATFORM_COLORS, scoreColor, formatNumber } from '../theme';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import {
+  colors, PLATFORM_COLORS, PLATFORM_LABELS, PLATFORM_ICONS,
+  scoreColor, scoreBg, formatNumber,
+} from '../theme';
+import { toggleBookmark, isBookmarked } from '../storage';
+import type { RootStackParamList } from '../types';
 
-type Props = {
-  route: RouteProp<RootStackParamList, 'Detail'>;
-};
+type Route = RouteProp<RootStackParamList, 'Detail'>;
 
-const PLATFORM_LABELS: Record<string, string> = {
-  instagram: 'Instagram',
-  twitter:   'X / Twitter',
-  youtube:   'YouTube',
-  tiktok:    'TikTok',
-  facebook:  'Facebook',
-};
+export default function DetailScreen() {
+  const { params: { influencer: r } } = useRoute<Route>();
+  const [bookmarked, setBookmarked] = useState(false);
+  const platformColor = PLATFORM_COLORS[r.platform] ?? colors.gold;
+  const sc = scoreColor(r.relevanceScore);
+  const sb = scoreBg(r.relevanceScore);
 
-export default function DetailScreen({ route }: Props) {
-  const { influencer: inf, rank } = route.params;
-  const sc = scoreColor(inf.relevanceScore);
-  const pc = PLATFORM_COLORS[inf.platform] ?? colors.slate500;
+  useEffect(() => {
+    isBookmarked(r.id).then(setBookmarked);
+  }, [r.id]);
+
+  async function handleBookmark() {
+    const saved = await toggleBookmark(r);
+    setBookmarked(saved);
+  }
+
+  async function handleShare() {
+    try {
+      await Share.share({
+        message: `${r.displayName} (@${r.username}) on ${PLATFORM_LABELS[r.platform]}\n` +
+          `Followers: ${formatNumber(r.followers)} · Engagement: ${r.engagementRate}%\n` +
+          `Relevance Score: ${r.relevanceScore}/100\n\n${r.aiSummary}`,
+        title: `Al-MOG: ${r.displayName}`,
+      });
+    } catch (e: any) {
+      Alert.alert('Share failed', e.message);
+    }
+  }
 
   return (
-    <SafeAreaView style={s.safe}>
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+      {/* Score hero */}
+      <View style={[styles.hero, { backgroundColor: sb, borderColor: sc }]}>
+        <Text style={[styles.heroScore, { color: sc }]}>{r.relevanceScore}</Text>
+        <Text style={styles.heroLabel}>Relevance Score</Text>
+        <View style={[styles.tierBadge, { borderColor: sc }]}>
+          <Text style={[styles.tierText, { color: sc }]}>{r.tier.toUpperCase()} TIER</Text>
+        </View>
+      </View>
 
-        {/* Header */}
-        <View style={s.header}>
-          <View style={[s.avatar, { backgroundColor: `${pc}22`, borderColor: `${pc}55` }]}>
-            <Text style={s.avatarIcon}>{PLATFORM_ICONS[inf.platform]}</Text>
+      {/* Identity */}
+      <View style={styles.card}>
+        <View style={styles.identRow}>
+          <View style={[styles.platformDot, { backgroundColor: platformColor }]}>
+            <Text style={styles.platformIcon}>{PLATFORM_ICONS[r.platform]}</Text>
           </View>
-          <View style={s.headerInfo}>
-            <View style={s.nameRow}>
-              <Text style={s.displayName}>{inf.displayName}</Text>
-              {inf.verifiedAccount && <Text style={s.verified}>  ✓</Text>}
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.displayName}>{r.displayName}</Text>
+              {r.verifiedAccount && <Text style={styles.verified}>✓</Text>}
             </View>
-            <Text style={s.username}>@{inf.username}  ·  {PLATFORM_LABELS[inf.platform]}</Text>
-            <Text style={s.location}>{inf.location}  ·  {inf.language}</Text>
-          </View>
-          <View style={s.rankBadge}><Text style={s.rankText}>#{rank}</Text></View>
-        </View>
-
-        {/* Score banner */}
-        <View style={[s.scoreBanner, { borderColor: `${sc}44` }]}>
-          <View>
-            <Text style={[s.bigScore, { color: sc }]}>{inf.relevanceScore}</Text>
-            <Text style={s.scoreSubtitle}>AI Relevance Score</Text>
-          </View>
-          <View style={s.scoreDivider} />
-          <View>
-            <Text style={[s.tierLabel, { color: sc }]}>{inf.tier.toUpperCase()} PRIORITY</Text>
-            <Text style={s.reachNum}>{formatNumber(inf.reachEstimate)}</Text>
-            <Text style={s.reachLabel}>Estimated Reach</Text>
+            <Text style={styles.username}>@{r.username} · {PLATFORM_LABELS[r.platform]}</Text>
           </View>
         </View>
+        <Text style={styles.location}>📍 {r.location} · 🌐 {r.language.toUpperCase()}</Text>
+        {r.bio ? <Text style={styles.bio}>{r.bio}</Text> : null}
+      </View>
 
-        {/* Metrics grid */}
-        <View style={s.metricsGrid}>
-          {[
-            { label: 'Followers',   val: formatNumber(inf.followers) },
-            { label: 'Engagement',  val: `${inf.engagementRate}%` },
-            { label: 'Avg Likes',   val: formatNumber(inf.avgLikes) },
-            { label: 'Posts / Week',val: inf.postsPerWeek.toString() },
-          ].map(({ label, val }) => (
-            <View key={label} style={s.metricCell}>
-              <Text style={s.metricVal}>{val}</Text>
-              <Text style={s.metricLabel}>{label}</Text>
-            </View>
-          ))}
+      {/* Metrics grid */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Metrics</Text>
+        <View style={styles.metricsGrid}>
+          <MetricBox label="Followers" value={formatNumber(r.followers)} />
+          <MetricBox label="Engagement" value={`${r.engagementRate.toFixed(2)}%`} />
+          <MetricBox label="Avg Likes" value={formatNumber(r.avgLikes)} />
+          <MetricBox label="Avg Comments" value={formatNumber(r.avgComments)} />
+          <MetricBox label="Est. Reach" value={formatNumber(r.reachEstimate)} />
         </View>
+      </View>
 
-        {/* Bio */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Bio</Text>
-          <Text style={s.bioText}>{inf.bio}</Text>
-        </View>
-
-        {/* Political Topics */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Political Topics</Text>
-          <View style={s.topicRow}>
-            {inf.politicalTopics.map(t => (
-              <View key={t} style={s.topicChip}>
-                <Text style={s.topicText}>{t}</Text>
+      {/* Political topics */}
+      {r.politicalTopics.length > 0 && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Political Topics</Text>
+          <View style={styles.topicsRow}>
+            {r.politicalTopics.map(t => (
+              <View key={t} style={styles.topicChip}>
+                <Text style={styles.topicText}>{t}</Text>
               </View>
             ))}
           </View>
         </View>
+      )}
 
-        {/* AI Intelligence Brief */}
-        <View style={[s.section, s.aiPanel]}>
-          <View style={s.aiHeader}>
-            <Text style={s.aiIcon}>🤖</Text>
-            <Text style={s.aiTitle}>AI Intelligence Brief</Text>
-          </View>
-          <Text style={s.aiSubtitle}>Why this influencer matters for your campaign</Text>
-          <Text style={s.aiBody}>{inf.aiSummary}</Text>
-          <View style={s.aiFooter}>
-            <Text style={s.aiFooterText}>Analysed by Llama 3.3 70B via Groq</Text>
-          </View>
-        </View>
+      {/* AI analysis */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>AI Intelligence Brief</Text>
+        <Text style={styles.aiSummary}>{r.aiSummary}</Text>
+      </View>
 
-      </ScrollView>
-    </SafeAreaView>
+      {/* Actions */}
+      <View style={styles.actions}>
+        <TouchableOpacity
+          onPress={handleBookmark}
+          style={[styles.actionBtn, bookmarked && styles.actionBtnActive]}
+        >
+          <Text style={styles.actionBtnText}>{bookmarked ? '★ Saved' : '☆ Save'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleShare} style={styles.actionBtn}>
+          <Text style={styles.actionBtnText}>↗ Share</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
-const s = StyleSheet.create({
-  safe:         { flex: 1, backgroundColor: colors.navy },
-  scroll:       { padding: 20, paddingBottom: 48 },
-  header:       { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  avatar:       { width: 56, height: 56, borderRadius: 28, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0 },
-  avatarIcon:   { fontSize: 24 },
-  headerInfo:   { flex: 1 },
-  nameRow:      { flexDirection: 'row', alignItems: 'center' },
-  displayName:  { fontSize: 18, fontWeight: '800', color: colors.white },
-  verified:     { fontSize: 14, color: '#38bdf8' },
-  username:     { fontSize: 12, color: colors.slate400, marginTop: 2 },
-  location:     { fontSize: 11, color: colors.slate500, marginTop: 2 },
-  rankBadge:    { backgroundColor: colors.slate700, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  rankText:     { fontSize: 12, fontWeight: '800', color: colors.slate300 },
-  scoreBanner:  { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.navyCard, borderRadius: 14, padding: 20, marginBottom: 16, borderWidth: 1 },
-  bigScore:     { fontSize: 52, fontWeight: '900', lineHeight: 56 },
-  scoreSubtitle:{ fontSize: 11, color: colors.slate400, marginTop: 2 },
-  scoreDivider: { width: 1, height: 50, backgroundColor: colors.slate700, marginHorizontal: 20 },
-  tierLabel:    { fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: 6 },
-  reachNum:     { fontSize: 22, fontWeight: '800', color: colors.white },
-  reachLabel:   { fontSize: 11, color: colors.slate400, marginTop: 2 },
-  metricsGrid:  { flexDirection: 'row', gap: 8, marginBottom: 20 },
-  metricCell:   { flex: 1, backgroundColor: colors.navyCard, borderRadius: 12, padding: 12, alignItems: 'center' },
-  metricVal:    { fontSize: 16, fontWeight: '800', color: colors.white, marginBottom: 3 },
-  metricLabel:  { fontSize: 9, color: colors.slate500, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5 },
-  section:      { marginBottom: 16 },
-  sectionTitle: { fontSize: 11, fontWeight: '700', color: colors.slate400, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
-  bioText:      { fontSize: 14, color: colors.slate300, lineHeight: 21, backgroundColor: colors.navyCard, borderRadius: 12, padding: 14 },
-  topicRow:     { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  topicChip:    { backgroundColor: `${colors.gold}14`, borderWidth: 1, borderColor: `${colors.gold}33`, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
-  topicText:    { fontSize: 12, color: colors.gold, textTransform: 'capitalize' },
-  aiPanel:      { backgroundColor: `${colors.emerald}08`, borderRadius: 14, padding: 18, borderWidth: 1, borderColor: `${colors.emerald}22` },
-  aiHeader:     { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  aiIcon:       { fontSize: 16 },
-  aiTitle:      { fontSize: 13, fontWeight: '800', color: colors.emerald, textTransform: 'uppercase', letterSpacing: 0.8 },
-  aiSubtitle:   { fontSize: 11, color: colors.slate500, marginBottom: 12 },
-  aiBody:       { fontSize: 14, color: colors.slate300, lineHeight: 22 },
-  aiFooter:     { marginTop: 14, paddingTop: 10, borderTopWidth: 1, borderTopColor: `${colors.emerald}18` },
-  aiFooterText: { fontSize: 10, color: colors.slate500 },
+function MetricBox({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.metricBox}>
+      <Text style={styles.metricValue}>{value}</Text>
+      <Text style={styles.metricLabel}>{label}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: 14, paddingBottom: 40 },
+  hero: {
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    padding: 24,
+    marginBottom: 12,
+  },
+  heroScore: { fontSize: 72, fontWeight: '900', lineHeight: 80 },
+  heroLabel: { fontSize: 13, color: colors.textMuted, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
+  tierBadge: {
+    marginTop: 10,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  tierText: { fontSize: 12, fontWeight: '700', letterSpacing: 1 },
+  card: {
+    backgroundColor: colors.bgCard,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 14,
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.gold,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 10,
+  },
+  identRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
+  platformDot: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  platformIcon: { fontSize: 18, color: '#fff' },
+  displayName: { fontSize: 18, fontWeight: '800', color: colors.text },
+  verified: { fontSize: 16, color: colors.gold },
+  username: { fontSize: 13, color: colors.textMuted },
+  location: { fontSize: 13, color: colors.textMuted, marginBottom: 8 },
+  bio: { fontSize: 14, color: colors.text, lineHeight: 20 },
+  metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  metricBox: {
+    width: '30%',
+    backgroundColor: colors.bgInput,
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+  },
+  metricValue: { fontSize: 18, fontWeight: '800', color: colors.text },
+  metricLabel: { fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', marginTop: 2 },
+  topicsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  topicChip: {
+    backgroundColor: colors.bgInput,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  topicText: { fontSize: 13, color: colors.textMuted },
+  aiSummary: { fontSize: 15, color: colors.text, lineHeight: 22 },
+  actions: { flexDirection: 'row', gap: 10 },
+  actionBtn: {
+    flex: 1,
+    backgroundColor: colors.bgCard,
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  actionBtnActive: { borderColor: colors.gold, backgroundColor: colors.bgInput },
+  actionBtnText: { fontSize: 15, fontWeight: '700', color: colors.gold },
 });

@@ -1,194 +1,171 @@
-import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity,
-  SafeAreaView,
-} from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList, RankedInfluencer } from '../types';
-import { colors, PLATFORM_ICONS, PLATFORM_COLORS, scoreColor, formatNumber } from '../theme';
+import React, { useState, useMemo } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { colors, formatNumber, scoreColor } from '../theme';
+import InfluencerCard from '../components/InfluencerCard';
+import { exportCSV, exportJSON } from '../services/export';
+import type { RootStackParamList, SortKey, TierFilter, RankedInfluencer } from '../types';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Results'>;
-  route: RouteProp<RootStackParamList, 'Results'>;
-};
+type Route = RouteProp<RootStackParamList, 'Results'>;
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-export default function ResultsScreen({ navigation, route }: Props) {
-  const { result } = route.params;
-  const [sortBy, setSortBy] = useState<'relevanceScore' | 'followers' | 'engagementRate'>('relevanceScore');
+export default function ResultsScreen() {
+  const { params: { record } } = useRoute<Route>();
+  const nav = useNavigation<Nav>();
+  const [sort, setSort] = useState<SortKey>('score');
+  const [tierFilter, setTierFilter] = useState<TierFilter>('all');
+  const [exporting, setExporting] = useState(false);
 
-  const sorted = [...result.influencers].sort((a, b) => b[sortBy] - a[sortBy]);
+  const results = useMemo(() => {
+    let list = record.results;
+    if (tierFilter !== 'all') list = list.filter(r => r.tier === tierFilter);
+    return [...list].sort((a, b) => {
+      if (sort === 'score') return b.relevanceScore - a.relevanceScore;
+      if (sort === 'followers') return b.followers - a.followers;
+      return b.engagementRate - a.engagementRate;
+    });
+  }, [record.results, sort, tierFilter]);
 
-  const totalReach = sorted.reduce((s, i) => s + i.reachEstimate, 0);
-  const avgScore   = Math.round(sorted.reduce((s, i) => s + i.relevanceScore, 0) / sorted.length);
+  const stats = useMemo(() => ({
+    total: results.length,
+    avgScore: results.length ? Math.round(results.reduce((s, r) => s + r.relevanceScore, 0) / results.length) : 0,
+    totalReach: results.reduce((s, r) => s + r.reachEstimate, 0),
+    high: results.filter(r => r.tier === 'high').length,
+  }), [results]);
 
-  function renderCard({ item, index }: { item: RankedInfluencer; index: number }) {
-    const sc = scoreColor(item.relevanceScore);
-    const pc = PLATFORM_COLORS[item.platform] ?? colors.slate500;
-    return (
-      <TouchableOpacity
-        style={s.card}
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('Detail', { influencer: item, rank: index + 1 })}
-      >
-        <View style={s.cardTop}>
-          {/* Rank */}
-          <View style={s.rankBadge}><Text style={s.rankText}>{index + 1}</Text></View>
-          {/* Platform avatar */}
-          <View style={[s.avatar, { backgroundColor: `${pc}22`, borderColor: `${pc}55` }]}>
-            <Text style={s.avatarIcon}>{PLATFORM_ICONS[item.platform]}</Text>
-          </View>
-          {/* Name / handle */}
-          <View style={s.cardInfo}>
-            <View style={s.nameRow}>
-              <Text style={s.displayName} numberOfLines={1}>{item.displayName}</Text>
-              {item.verifiedAccount && <Text style={s.verified}>✓</Text>}
-            </View>
-            <Text style={s.username} numberOfLines={1}>@{item.username}</Text>
-          </View>
-          {/* Score ring */}
-          <View style={[s.scoreRing, { borderColor: sc }]}>
-            <Text style={[s.scoreText, { color: sc }]}>{item.relevanceScore}</Text>
-          </View>
-        </View>
-
-        {/* Topic chips */}
-        <View style={s.topics}>
-          {item.politicalTopics.slice(0, 3).map(t => (
-            <View key={t} style={s.topicChip}>
-              <Text style={s.topicText}>{t}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Metrics */}
-        <View style={s.metrics}>
-          {[
-            { label: 'Followers', val: formatNumber(item.followers) },
-            { label: 'Engagement', val: `${item.engagementRate}%` },
-            { label: 'AI Score', val: item.relevanceScore.toString() },
-          ].map(({ label, val }) => (
-            <View key={label} style={s.metric}>
-              <Text style={s.metricVal}>{val}</Text>
-              <Text style={s.metricLabel}>{label}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* AI summary preview */}
-        <Text style={s.summary} numberOfLines={2}>{item.aiSummary}</Text>
-        <View style={s.tapHint}><Text style={s.tapHintText}>Tap for full intelligence brief →</Text></View>
-      </TouchableOpacity>
-    );
+  async function doExport(format: 'csv' | 'json') {
+    setExporting(true);
+    try {
+      if (format === 'csv') await exportCSV(results, record.params);
+      else await exportJSON(results, record.params);
+    } catch (e: any) {
+      Alert.alert('Export failed', e.message);
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
-    <SafeAreaView style={s.safe}>
-      {/* Summary bar */}
-      <View style={s.summaryBar}>
-        <View style={s.summaryBarItem}>
-          <Text style={s.summaryBarNum}>{sorted.length}</Text>
-          <Text style={s.summaryBarLabel}>Results</Text>
-        </View>
-        <View style={s.summaryBarDivider} />
-        <View style={s.summaryBarItem}>
-          <Text style={s.summaryBarNum}>{formatNumber(totalReach)}</Text>
-          <Text style={s.summaryBarLabel}>Total Reach</Text>
-        </View>
-        <View style={s.summaryBarDivider} />
-        <View style={s.summaryBarItem}>
-          <Text style={s.summaryBarNum}>{avgScore}</Text>
-          <Text style={s.summaryBarLabel}>Avg Score</Text>
-        </View>
-        {result.tier === 'free' && (
-          <>
-            <View style={s.summaryBarDivider} />
-            <View style={[s.summaryBarItem, s.freeBadge]}>
-              <Text style={s.freeBadgeText}>FREE</Text>
-            </View>
-          </>
-        )}
+    <View style={styles.root}>
+      {/* Stats bar */}
+      <View style={styles.statsBar}>
+        <StatItem label="Results" value={stats.total.toString()} />
+        <StatItem label="Avg Score" value={stats.avgScore.toString()} color={scoreColor(stats.avgScore)} />
+        <StatItem label="High Tier" value={stats.high.toString()} color={colors.success} />
+        <StatItem label="Total Reach" value={formatNumber(stats.totalReach)} />
       </View>
 
-      {/* Sort row */}
-      <View style={s.sortRow}>
-        <Text style={s.sortLabel}>Sort:</Text>
-        {([
-          ['relevanceScore', 'AI Score'],
-          ['followers',      'Followers'],
-          ['engagementRate', 'Engagement'],
-        ] as const).map(([key, label]) => (
-          <TouchableOpacity
-            key={key}
-            style={[s.sortChip, sortBy === key && s.sortChipActive]}
-            onPress={() => setSortBy(key)}
-          >
-            <Text style={[s.sortChipText, sortBy === key && s.sortChipTextActive]}>{label}</Text>
+      {/* Controls */}
+      <View style={styles.controls}>
+        <View style={styles.ctrlGroup}>
+          <Text style={styles.ctrlLabel}>Sort:</Text>
+          {(['score', 'followers', 'engagement'] as SortKey[]).map(k => (
+            <TouchableOpacity key={k} onPress={() => setSort(k)} style={[styles.pill, sort === k && styles.pillOn]}>
+              <Text style={[styles.pillText, sort === k && styles.pillTextOn]}>{k}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={styles.ctrlGroup}>
+          <Text style={styles.ctrlLabel}>Tier:</Text>
+          {(['all', 'high', 'medium', 'low'] as TierFilter[]).map(t => (
+            <TouchableOpacity key={t} onPress={() => setTierFilter(t)} style={[styles.pill, tierFilter === t && styles.pillOn]}>
+              <Text style={[styles.pillText, tierFilter === t && styles.pillTextOn]}>{t}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* Export */}
+      <View style={styles.exportRow}>
+        <Text style={styles.aiLabel}>
+          {record.aiMode === 'anthropic' ? '🤖 Claude AI' : '📱 Local LLM'} · {(record.durationMs / 1000).toFixed(1)}s
+        </Text>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity onPress={() => doExport('csv')} style={styles.exportBtn} disabled={exporting}>
+            <Text style={styles.exportBtnText}>CSV</Text>
           </TouchableOpacity>
-        ))}
+          <TouchableOpacity onPress={() => doExport('json')} style={styles.exportBtn} disabled={exporting}>
+            <Text style={styles.exportBtnText}>JSON</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
-        data={sorted}
+        data={results}
         keyExtractor={item => item.id}
-        renderItem={renderCard}
-        contentContainerStyle={{ padding: 14, paddingBottom: 40 }}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        ListFooterComponent={
-          result.tier === 'free' ? (
-            <View style={s.upgradeBox}>
-              <Text style={s.upgradeTitle}>🔒  Upgrade to PRO</Text>
-              <Text style={s.upgradeText}>
-                Unlock 100 results per search, real API data, unlimited daily searches, and CSV export.
-              </Text>
-            </View>
-          ) : null
+        contentContainerStyle={styles.list}
+        renderItem={({ item, index }) => (
+          <InfluencerCard
+            influencer={item}
+            rank={index + 1}
+            onPress={() => nav.navigate('Detail', { influencer: item })}
+          />
+        )}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No results for this filter.</Text>
+          </View>
         }
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
-const s = StyleSheet.create({
-  safe:               { flex: 1, backgroundColor: colors.navy },
-  summaryBar:         { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.navyMid, paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: colors.slate700 },
-  summaryBarItem:     { flex: 1, alignItems: 'center' },
-  summaryBarNum:      { fontSize: 18, fontWeight: '900', color: colors.white },
-  summaryBarLabel:    { fontSize: 10, color: colors.slate400, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
-  summaryBarDivider:  { width: 1, height: 28, backgroundColor: colors.slate700 },
-  freeBadge:          { flex: 0, paddingHorizontal: 12 },
-  freeBadgeText:      { fontSize: 10, fontWeight: '800', color: colors.slate400, backgroundColor: colors.slate700, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, overflow: 'hidden' },
-  sortRow:            { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.slate700 },
-  sortLabel:          { fontSize: 11, color: colors.slate500, marginRight: 4 },
-  sortChip:           { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: colors.slate700 },
-  sortChipActive:     { borderColor: colors.gold, backgroundColor: `${colors.gold}14` },
-  sortChipText:       { fontSize: 11, color: colors.slate400 },
-  sortChipTextActive: { color: colors.gold, fontWeight: '700' },
-  card:               { backgroundColor: colors.navyCard, borderRadius: 14, padding: 16, borderWidth: 1, borderColor: colors.navyLite },
-  cardTop:            { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  rankBadge:          { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.slate700, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  rankText:           { fontSize: 10, fontWeight: '800', color: colors.slate300 },
-  avatar:             { width: 44, height: 44, borderRadius: 22, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  avatarIcon:         { fontSize: 20 },
-  cardInfo:           { flex: 1 },
-  nameRow:            { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  displayName:        { fontSize: 14, fontWeight: '700', color: colors.white },
-  verified:           { fontSize: 12, color: '#38bdf8' },
-  username:           { fontSize: 12, color: colors.slate400, marginTop: 1 },
-  scoreRing:          { width: 44, height: 44, borderRadius: 22, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  scoreText:          { fontSize: 13, fontWeight: '900' },
-  topics:             { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
-  topicChip:          { backgroundColor: colors.slate800, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
-  topicText:          { fontSize: 10, color: colors.slate400, textTransform: 'capitalize' },
-  metrics:            { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  metric:             { flex: 1, backgroundColor: `${colors.slate800}99`, borderRadius: 10, paddingVertical: 8, alignItems: 'center' },
-  metricVal:          { fontSize: 14, fontWeight: '800', color: colors.white },
-  metricLabel:        { fontSize: 9, color: colors.slate500, marginTop: 2, textTransform: 'uppercase' },
-  summary:            { fontSize: 12, color: colors.slate400, lineHeight: 18, marginBottom: 8 },
-  tapHint:            { alignItems: 'flex-end' },
-  tapHintText:        { fontSize: 11, color: `${colors.gold}88` },
-  upgradeBox:         { marginTop: 16, padding: 20, backgroundColor: `${colors.gold}0a`, borderRadius: 14, borderWidth: 1, borderColor: `${colors.gold}33` },
-  upgradeTitle:       { fontSize: 15, fontWeight: '800', color: colors.gold, marginBottom: 6 },
-  upgradeText:        { fontSize: 13, color: colors.slate400, lineHeight: 19 },
+function StatItem({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <View style={styles.statItem}>
+      <Text style={[styles.statValue, color ? { color } : {}]}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.bg },
+  statsBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: colors.bgCard,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingVertical: 10,
+  },
+  statItem: { alignItems: 'center' },
+  statValue: { fontSize: 18, fontWeight: '800', color: colors.text },
+  statLabel: { fontSize: 10, color: colors.textMuted, textTransform: 'uppercase' },
+  controls: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    gap: 6,
+  },
+  ctrlGroup: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  ctrlLabel: { fontSize: 11, color: colors.textMuted, marginRight: 2, width: 36 },
+  pill: {
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  },
+  pillOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
+  pillText: { fontSize: 11, color: colors.textMuted, textTransform: 'capitalize' },
+  pillTextOn: { color: colors.gold, fontWeight: '700' },
+  exportRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  aiLabel: { fontSize: 11, color: colors.textMuted },
+  exportBtn: {
+    paddingHorizontal: 12, paddingVertical: 5, borderRadius: 6,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  },
+  exportBtnText: { fontSize: 12, color: colors.gold, fontWeight: '600' },
+  list: { padding: 10, paddingBottom: 20 },
+  empty: { padding: 40, alignItems: 'center' },
+  emptyText: { color: colors.textMuted, fontSize: 15 },
 });

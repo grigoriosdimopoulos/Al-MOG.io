@@ -1,230 +1,284 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, SafeAreaView, ActivityIndicator, Alert,
-  KeyboardAvoidingView, Platform,
+  View, Text, TextInput, ScrollView, TouchableOpacity,
+  StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, SearchParams } from '../types';
-import { searchInfluencers } from '../services/api';
-import { colors } from '../theme';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { colors, PLATFORM_LABELS, PLATFORM_ICONS, s } from '../theme';
+import { fetchCandidates } from '../services/platforms';
+import { rankInfluencers } from '../services/ai';
+import { getSettings, saveToHistory } from '../storage';
+import type { RootStackParamList, SearchParams, Platform as PlatformType, SearchRecord } from '../types';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Search'>;
-};
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const PLATFORMS = [
-  { id: 'instagram' as const, label: 'Instagram', icon: '📸' },
-  { id: 'twitter'   as const, label: 'X / Twitter', icon: '🐦' },
-  { id: 'youtube'   as const, label: 'YouTube', icon: '▶' },
-  { id: 'tiktok'    as const, label: 'TikTok', icon: '♪' },
-  { id: 'facebook'  as const, label: 'Facebook', icon: '👥' },
+const ALL_PLATFORMS: PlatformType[] = ['instagram', 'twitter', 'youtube', 'tiktok', 'facebook'];
+const TOPIC_PRESETS = [
+  'Healthcare', 'Economy', 'Climate', 'Education', 'Immigration',
+  'Foreign Policy', 'Tax Reform', 'Public Safety', 'Housing', 'Veterans',
+  'Gun Rights', 'Civil Rights', 'Defense', 'Trade', 'Energy',
 ];
+const LANGUAGES = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'zh', 'hi'];
 
-const TOPICS = [
-  'healthcare', 'economy', 'immigration', 'climate change', 'education',
-  'taxes', 'foreign policy', 'gun control', 'social justice', 'infrastructure',
-  'housing', 'criminal justice', 'energy policy', 'labor rights',
-];
-
-export default function SearchScreen({ navigation }: Props) {
-  const [keyword, setKeyword]         = useState('');
-  const [keywords, setKeywords]       = useState<string[]>([]);
-  const [location, setLocation]       = useState('');
-  const [platforms, setPlatforms]     = useState<typeof PLATFORMS[number]['id'][]>(['twitter', 'instagram', 'youtube']);
+export default function SearchScreen() {
+  const nav = useNavigation<Nav>();
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [kwInput, setKwInput] = useState('');
+  const [platforms, setPlatforms] = useState<PlatformType[]>(['twitter', 'youtube']);
+  const [location, setLocation] = useState('');
   const [followerMin, setFollowerMin] = useState('10000');
-  const [followerMax, setFollowerMax] = useState('1000000');
-  const [engMin, setEngMin]           = useState('1');
-  const [topics, setTopics]           = useState<string[]>([]);
-  const [loading, setLoading]         = useState(false);
+  const [followerMax, setFollowerMax] = useState('5000000');
+  const [engagementMin, setEngagementMin] = useState('1');
+  const [language, setLanguage] = useState('en');
+  const [topics, setTopics] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState('');
 
   function addKeyword() {
-    const t = keyword.trim();
-    if (t && !keywords.includes(t)) setKeywords(prev => [...prev, t]);
-    setKeyword('');
+    const kw = kwInput.trim();
+    if (kw && !keywords.includes(kw)) setKeywords(p => [...p, kw]);
+    setKwInput('');
   }
 
-  function togglePlatform(id: typeof PLATFORMS[number]['id']) {
-    setPlatforms(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  function togglePlatform(p: PlatformType) {
+    setPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
   }
 
   function toggleTopic(t: string) {
     setTopics(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
   }
 
-  async function handleSearch() {
+  async function runSearch() {
     if (keywords.length === 0) {
-      Alert.alert('Add Keywords', 'Enter at least one campaign keyword before searching.');
+      Alert.alert('Keywords required', 'Add at least one keyword.');
       return;
     }
     if (platforms.length === 0) {
-      Alert.alert('Select Platforms', 'Select at least one social media platform.');
+      Alert.alert('Platform required', 'Select at least one platform.');
       return;
     }
-    setLoading(true);
+
+    const settings = await getSettings();
     const params: SearchParams = {
       keywords,
-      location,
+      location: location.trim(),
       platforms,
-      followerMin: parseInt(followerMin) || 1000,
-      followerMax: parseInt(followerMax) || 10_000_000,
-      engagementMin: parseFloat(engMin) || 0,
-      language: 'English',
+      followerMin: parseInt(followerMin, 10) || 10000,
+      followerMax: parseInt(followerMax, 10) || 5_000_000,
+      engagementMin: parseFloat(engagementMin) || 1,
+      language,
       politicalTopics: topics,
     };
+
+    setLoading(true);
+    const t0 = Date.now();
     try {
-      const result = await searchInfluencers(params);
-      navigation.navigate('Results', { result, params });
-    } catch (err) {
-      Alert.alert('Search Failed', err instanceof Error ? err.message : 'Please try again.');
+      setLoadingStep('Gathering profiles from platforms…');
+      const candidates = await fetchCandidates(params);
+
+      const aiLabel = settings.aiMode === 'anthropic' ? 'Claude AI' : 'Local LLM';
+      setLoadingStep(`Analyzing ${candidates.length} profiles with ${aiLabel}…`);
+      const results = await rankInfluencers(candidates, params);
+
+      const record: SearchRecord = {
+        id: `s_${Date.now()}`,
+        params,
+        results,
+        timestamp: Date.now(),
+        aiMode: settings.aiMode,
+        durationMs: Date.now() - t0,
+      };
+      await saveToHistory(record);
+      nav.navigate('Results', { record });
+    } catch (err: any) {
+      Alert.alert('Search failed', err.message ?? 'Unknown error. Check Settings.');
     } finally {
       setLoading(false);
+      setLoadingStep('');
     }
   }
 
   return (
-    <SafeAreaView style={s.safe}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
-          <SectionLabel>Campaign Keywords</SectionLabel>
-          <View style={s.row}>
+        {/* Keywords */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Search Keywords</Text>
+          <View style={styles.row}>
             <TextInput
-              style={s.inputFlex}
-              value={keyword}
-              onChangeText={setKeyword}
-              onSubmitEditing={addKeyword}
+              style={[styles.input, { flex: 1 }]}
               placeholder="e.g. healthcare reform"
-              placeholderTextColor={colors.slate500}
+              placeholderTextColor={colors.textDim}
+              value={kwInput}
+              onChangeText={setKwInput}
+              onSubmitEditing={addKeyword}
               returnKeyType="done"
             />
-            <TouchableOpacity style={s.addBtn} onPress={addKeyword}>
-              <Text style={s.addBtnText}>Add</Text>
+            <TouchableOpacity onPress={addKeyword} style={styles.addBtn}>
+              <Text style={styles.addBtnText}>Add</Text>
             </TouchableOpacity>
           </View>
           {keywords.length > 0 && (
-            <View style={s.tags}>
+            <View style={styles.chipRow}>
               {keywords.map(kw => (
-                <TouchableOpacity key={kw} style={s.tag} onPress={() => setKeywords(p => p.filter(k => k !== kw))}>
-                  <Text style={s.tagText}>{kw}  ✕</Text>
+                <TouchableOpacity key={kw} onPress={() => setKeywords(p => p.filter(k => k !== kw))} style={styles.kwChip}>
+                  <Text style={styles.kwChipText}>{kw} ✕</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
-          {keywords.length === 0 && <Text style={s.hint}>Type a keyword and tap Add</Text>}
+        </View>
 
-          <SectionLabel>Target Location</SectionLabel>
-          <TextInput
-            style={s.input}
-            value={location}
-            onChangeText={setLocation}
-            placeholder="e.g. New York, NY (leave blank for national)"
-            placeholderTextColor={colors.slate500}
-          />
-
-          <SectionLabel>Platforms</SectionLabel>
-          {PLATFORMS.map(p => (
-            <TouchableOpacity key={p.id} style={s.checkRow} onPress={() => togglePlatform(p.id)} activeOpacity={0.7}>
-              <View style={[s.checkbox, platforms.includes(p.id) && s.checkboxActive]}>
-                {platforms.includes(p.id) && <Text style={s.checkmark}>✓</Text>}
-              </View>
-              <Text style={s.checkLabel}>{p.icon}  {p.label}</Text>
-            </TouchableOpacity>
-          ))}
-
-          <SectionLabel>Follower Range</SectionLabel>
-          <View style={s.row}>
-            <View style={{ flex: 1, marginRight: 8 }}>
-              <Text style={s.subLabel}>Minimum</Text>
-              <TextInput style={s.input} value={followerMin} onChangeText={setFollowerMin} keyboardType="numeric" placeholderTextColor={colors.slate500} />
-            </View>
-            <View style={{ flex: 1, marginLeft: 8 }}>
-              <Text style={s.subLabel}>Maximum</Text>
-              <TextInput style={s.input} value={followerMax} onChangeText={setFollowerMax} keyboardType="numeric" placeholderTextColor={colors.slate500} />
-            </View>
+        {/* Platforms */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Platforms</Text>
+          <View style={styles.chipRow}>
+            {ALL_PLATFORMS.map(p => {
+              const active = platforms.includes(p);
+              return (
+                <TouchableOpacity
+                  key={p}
+                  onPress={() => togglePlatform(p)}
+                  style={[styles.platformBtn, active && styles.platformBtnOn]}
+                >
+                  <Text style={styles.platformIcon}>{PLATFORM_ICONS[p]}</Text>
+                  <Text style={[styles.platformBtnText, active && { color: colors.gold, fontWeight: '700' }]}>
+                    {PLATFORM_LABELS[p]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
+        </View>
 
-          <SectionLabel>Min Engagement Rate (%)</SectionLabel>
-          <TextInput
-            style={s.input}
-            value={engMin}
-            onChangeText={setEngMin}
-            keyboardType="decimal-pad"
-            placeholder="e.g. 2.5"
-            placeholderTextColor={colors.slate500}
-          />
+        {/* Filters */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Filters</Text>
+          <View style={styles.grid2}>
+            {[
+              { label: 'Min followers', val: followerMin, set: setFollowerMin, num: true },
+              { label: 'Max followers', val: followerMax, set: setFollowerMax, num: true },
+              { label: 'Min engagement %', val: engagementMin, set: setEngagementMin, num: true },
+              { label: 'Location', val: location, set: setLocation, num: false },
+            ].map(({ label, val, set, num }) => (
+              <View key={label} style={styles.filterItem}>
+                <Text style={styles.filterLabel}>{label}</Text>
+                <TextInput
+                  style={styles.input}
+                  keyboardType={num ? 'decimal-pad' : 'default'}
+                  value={val}
+                  onChangeText={set}
+                  placeholderTextColor={colors.textDim}
+                  placeholder={num ? '0' : 'Any'}
+                />
+              </View>
+            ))}
+          </View>
+        </View>
 
-          <SectionLabel>Political Topics</SectionLabel>
-          <View style={s.topicGrid}>
-            {TOPICS.map(t => (
+        {/* Language */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Language</Text>
+          <View style={styles.chipRow}>
+            {LANGUAGES.map(l => (
               <TouchableOpacity
-                key={t}
-                style={[s.topicChip, topics.includes(t) && s.topicChipActive]}
-                onPress={() => toggleTopic(t)}
-                activeOpacity={0.7}
+                key={l}
+                onPress={() => setLanguage(l)}
+                style={[styles.langBtn, language === l && styles.langBtnOn]}
               >
-                <Text style={[s.topicText, topics.includes(t) && s.topicTextActive]}>{t}</Text>
+                <Text style={[styles.langBtnText, language === l && { color: colors.gold }]}>{l.toUpperCase()}</Text>
               </TouchableOpacity>
             ))}
           </View>
+        </View>
 
-          <TouchableOpacity style={[s.searchBtn, loading && s.searchBtnDisabled]} onPress={handleSearch} disabled={loading} activeOpacity={0.85}>
-            {loading
-              ? <View style={s.loadingRow}><ActivityIndicator color={colors.navy} /><Text style={[s.searchBtnText, { marginLeft: 8 }]}>AI Agent Running…</Text></View>
-              : <Text style={s.searchBtnText}>🔍  Find Influencers</Text>
-            }
-          </TouchableOpacity>
+        {/* Topics */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Political Topics</Text>
+          <View style={styles.chipRow}>
+            {TOPIC_PRESETS.map(t => {
+              const active = topics.includes(t);
+              return (
+                <TouchableOpacity
+                  key={t}
+                  onPress={() => toggleTopic(t)}
+                  style={[styles.topicBtn, active && styles.topicBtnOn]}
+                >
+                  <Text style={[styles.topicBtnText, active && { color: colors.gold, fontWeight: '600' }]}>{t}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
 
-          {loading && (
-            <View style={s.loadingSteps}>
-              {['Gathering profiles…', 'Analyzing content…', 'Scoring relevance…', 'Ranking results…'].map((step, i) => (
-                <Text key={i} style={s.loadingStep}>• {step}</Text>
-              ))}
+        {/* Run */}
+        <TouchableOpacity onPress={runSearch} style={[styles.searchBtn, loading && { opacity: 0.7 }]} disabled={loading}>
+          {loading ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <ActivityIndicator color={colors.bg} size="small" />
+              <Text style={styles.searchBtnText} numberOfLines={1}>{loadingStep || 'Analyzing…'}</Text>
             </View>
+          ) : (
+            <Text style={styles.searchBtnText}>Search & Analyze</Text>
           )}
+        </TouchableOpacity>
 
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
-function SectionLabel({ children }: { children: string }) {
-  return <Text style={sectionLabelStyle}>{children}</Text>;
-}
-const sectionLabelStyle: object = {
-  fontSize: 11, fontWeight: '700', color: colors.slate400,
-  textTransform: 'uppercase', letterSpacing: 1,
-  marginTop: 24, marginBottom: 10,
-};
-
-const s = StyleSheet.create({
-  safe:              { flex: 1, backgroundColor: colors.navy },
-  scroll:            { padding: 20, paddingBottom: 48 },
-  row:               { flexDirection: 'row', alignItems: 'center' },
-  input:             { backgroundColor: colors.navyCard, borderWidth: 1, borderColor: colors.slate700, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: colors.white, marginBottom: 2 },
-  inputFlex:         { flex: 1, backgroundColor: colors.navyCard, borderWidth: 1, borderColor: colors.slate700, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: colors.white, marginRight: 8 },
-  addBtn:            { backgroundColor: `${colors.gold}18`, borderWidth: 1, borderColor: `${colors.gold}44`, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12 },
-  addBtnText:        { fontSize: 13, fontWeight: '700', color: colors.gold },
-  tags:              { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
-  tag:               { flexDirection: 'row', alignItems: 'center', backgroundColor: `${colors.gold}18`, borderWidth: 1, borderColor: `${colors.gold}44`, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
-  tagText:           { fontSize: 12, color: colors.gold },
-  hint:              { fontSize: 11, color: colors.slate500, marginTop: 6 },
-  subLabel:          { fontSize: 11, color: colors.slate500, marginBottom: 6 },
-  checkRow:          { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  checkbox:          { width: 22, height: 22, borderRadius: 5, borderWidth: 2, borderColor: colors.slate600, marginRight: 12, alignItems: 'center', justifyContent: 'center' },
-  checkboxActive:    { backgroundColor: colors.gold, borderColor: colors.gold },
-  checkmark:         { fontSize: 12, fontWeight: '900', color: colors.navy },
-  checkLabel:        { fontSize: 14, color: colors.slate400 },
-  topicGrid:         { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  topicChip:         { borderWidth: 1, borderColor: colors.slate700, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 },
-  topicChipActive:   { borderColor: `${colors.gold}66`, backgroundColor: `${colors.gold}14` },
-  topicText:         { fontSize: 12, color: colors.slate400, textTransform: 'capitalize' },
-  topicTextActive:   { color: colors.gold },
-  searchBtn:         { backgroundColor: colors.gold, borderRadius: 12, paddingVertical: 17, alignItems: 'center', marginTop: 32 },
-  searchBtnDisabled: { opacity: 0.6 },
-  searchBtnText:     { fontSize: 16, fontWeight: '800', color: colors.navy },
-  loadingRow:        { flexDirection: 'row', alignItems: 'center' },
-  loadingSteps:      { marginTop: 16, padding: 16, backgroundColor: colors.navyCard, borderRadius: 10, borderWidth: 1, borderColor: `${colors.gold}22` },
-  loadingStep:       { fontSize: 13, color: colors.slate400, marginBottom: 6 },
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: 16, paddingBottom: 40 },
+  section: { marginBottom: 22 },
+  sectionTitle: {
+    fontSize: 11, fontWeight: '700', color: colors.gold,
+    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10,
+  },
+  row: { flexDirection: 'row', gap: 8 },
+  input: {
+    backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.border,
+    borderRadius: 8, color: colors.text, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14,
+  },
+  addBtn: {
+    backgroundColor: colors.gold, borderRadius: 8, paddingHorizontal: 16, justifyContent: 'center',
+  },
+  addBtnText: { color: colors.bg, fontWeight: '700', fontSize: 14 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
+  kwChip: {
+    backgroundColor: colors.bgInput, borderRadius: 6, paddingHorizontal: 10,
+    paddingVertical: 5, borderWidth: 1, borderColor: colors.gold,
+  },
+  kwChipText: { color: colors.gold, fontSize: 13, fontWeight: '600' },
+  platformBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  },
+  platformBtnOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
+  platformIcon: { fontSize: 14 },
+  platformBtnText: { fontSize: 13, color: colors.textMuted },
+  grid2: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  filterItem: { width: '47%' },
+  filterLabel: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
+  langBtn: {
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  },
+  langBtnOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
+  langBtnText: { fontSize: 12, color: colors.textMuted, fontWeight: '600' },
+  topicBtn: {
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  },
+  topicBtnOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
+  topicBtnText: { fontSize: 12, color: colors.textMuted },
+  searchBtn: {
+    backgroundColor: colors.gold, borderRadius: 10,
+    paddingVertical: 16, alignItems: 'center', marginTop: 4,
+  },
+  searchBtnText: { fontSize: 16, fontWeight: '800', color: colors.bg },
 });

@@ -22,6 +22,10 @@
       }
     },
     "scheme": "almog",
+    "plugins": [
+      "expo-file-system",
+      "expo-sharing"
+    ],
     "extra": {
       "apiUrl": "https://al-mog.io"
     }

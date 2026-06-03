@@ -1,4 +1,7 @@
 export type Platform = 'instagram' | 'twitter' | 'youtube' | 'tiktok' | 'facebook';
+export type AIMode = 'anthropic' | 'local';
+export type SortKey = 'score' | 'followers' | 'engagement';
+export type TierFilter = 'all' | 'high' | 'medium' | 'low';
 
 export interface SearchParams {
   keywords: string[];
@@ -11,7 +14,7 @@ export interface SearchParams {
   politicalTopics: string[];
 }
 
-export interface RankedInfluencer {
+export interface Influencer {
   id: string;
   platform: Platform;
   username: string;
@@ -26,23 +29,52 @@ export interface RankedInfluencer {
   bio: string;
   profileImageUrl: string;
   verifiedAccount: boolean;
-  postsPerWeek: number;
+}
+
+export interface RankedInfluencer extends Influencer {
   relevanceScore: number;
   aiSummary: string;
   reachEstimate: number;
   tier: 'high' | 'medium' | 'low';
 }
 
-export interface SearchResult {
-  influencers: RankedInfluencer[];
-  totalFound: number;
-  tier: 'free' | 'paid';
-  searchId: string;
+export interface SearchRecord {
+  id: string;
+  params: SearchParams;
+  results: RankedInfluencer[];
+  timestamp: number;
+  aiMode: AIMode;
+  durationMs: number;
+}
+
+export interface AppSettings {
+  aiMode: AIMode;
+  anthropicApiKey: string;
+  localModelPath: string | null;
+  localModelName: string | null;
+  youtubeApiKey: string;
+  twitterBearerToken: string;
+  resultsPerSearch: number;
+}
+
+export interface LocalModel {
+  name: string;
+  filename: string;
+  sizeGB: number;
+  url: string;
+  description: string;
 }
 
 export type RootStackParamList = {
-  Home: undefined;
+  MainTabs: undefined;
+  Results: { record: SearchRecord };
+  Detail: { influencer: RankedInfluencer };
+  ModelManager: undefined;
+};
+
+export type TabParamList = {
   Search: undefined;
-  Results: { result: SearchResult; params: SearchParams };
-  Detail: { influencer: RankedInfluencer; rank: number };
+  Bookmarks: undefined;
+  History: undefined;
+  Settings: undefined;
 };
