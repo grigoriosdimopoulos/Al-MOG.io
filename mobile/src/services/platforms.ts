@@ -1,6 +1,18 @@
 import type { Influencer, Platform, SearchParams } from '../types';
 import { getSettings } from '../storage';
 
+function profileUrl(platform: Platform, username: string, channelId?: string): string {
+  const u = username.replace(/^@/, '');
+  switch (platform) {
+    case 'instagram': return `https://www.instagram.com/${u}/`;
+    case 'twitter':   return `https://x.com/${u}`;
+    case 'youtube':   return channelId ? `https://www.youtube.com/channel/${channelId}` : `https://www.youtube.com/@${u}`;
+    case 'tiktok':    return `https://www.tiktok.com/@${u}`;
+    case 'facebook':  return `https://www.facebook.com/${u}`;
+    default:          return '';
+  }
+}
+
 export async function fetchCandidates(params: SearchParams): Promise<Influencer[]> {
   const settings = await getSettings();
   const all: Influencer[] = [];
@@ -34,13 +46,14 @@ async function fromYouTube(params: SearchParams, key: string): Promise<Influence
       platform: 'youtube' as Platform,
       username: item.snippet.channelTitle.replace(/\s+/g, '_').toLowerCase(),
       displayName: item.snippet.channelTitle,
+      profileUrl: profileUrl('youtube', item.snippet.channelTitle.replace(/\s+/g, '_').toLowerCase(), item.id.channelId),
       followers: 50000 + seeded(item.id.channelId, i) % 1_500_000,
       engagementRate: parseFloat((2 + (seeded(item.id.channelId, i + 1) % 800) / 100).toFixed(2)),
       avgLikes: 1000 + seeded(item.id.channelId, i + 2) % 80_000,
       avgComments: 50 + seeded(item.id.channelId, i + 3) % 8_000,
       politicalTopics: params.politicalTopics.slice(0, 3),
-      location: params.location || 'United States',
-      language: params.language || 'en',
+      location: params.location || 'Greece',
+      language: params.language || 'el',
       bio: item.snippet.description?.slice(0, 250) || '',
       profileImageUrl: item.snippet.thumbnails?.default?.url || '',
       verifiedAccount: false,
@@ -64,13 +77,14 @@ async function fromTwitter(params: SearchParams, token: string): Promise<Influen
       platform: 'twitter' as Platform,
       username: u.username,
       displayName: u.name,
+      profileUrl: profileUrl('twitter', u.username),
       followers: u.public_metrics?.followers_count ?? 5000,
       engagementRate: parseFloat((1.5 + (seeded(u.id, 0) % 500) / 100).toFixed(2)),
       avgLikes: u.public_metrics?.like_count ?? 500,
       avgComments: 50 + seeded(u.id, 1) % 2000,
       politicalTopics: params.politicalTopics.slice(0, 3),
-      location: u.location || params.location || 'United States',
-      language: params.language || 'en',
+      location: u.location || params.location || 'Greece',
+      language: params.language || 'el',
       bio: u.description || '',
       profileImageUrl: '',
       verifiedAccount: u.verified || false,
@@ -128,11 +142,13 @@ function mockInfluencers(params: SearchParams, platform: Platform, limit: number
 
     if (params.verifiedOnly && (seed + i) % 5 !== 0) continue;
 
+    const un = `${username}_${platform.slice(0, 2)}`;
     results.push({
       id: `${platform}_${seed}_${i}`,
       platform,
-      username: `${username}_${platform.slice(0, 2)}`,
+      username: un,
       displayName,
+      profileUrl: profileUrl(platform, un),
       followers,
       engagementRate: parseFloat(engagement.toFixed(2)),
       avgLikes: Math.floor(followers * engagement / 200),

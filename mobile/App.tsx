@@ -13,6 +13,7 @@ import BookmarksScreen from './src/screens/BookmarksScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ModelScreen from './src/screens/ModelScreen';
+import NetworkAnalysisScreen from './src/screens/NetworkAnalysisScreen';
 
 import { colors } from './src/theme';
 import type { RootStackParamList, TabParamList } from './src/types';
@@ -123,6 +124,7 @@ export default function App() {
           <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Αποτελέσματα Ανάλυσης' }} />
           <Stack.Screen name="Detail" component={DetailScreen} options={{ title: 'Προφίλ Επιρροής' }} />
           <Stack.Screen name="ModelManager" component={ModelScreen} options={{ title: 'Διαχείριση Μοντέλων' }} />
+          <Stack.Screen name="NetworkAnalysis" component={NetworkAnalysisScreen} options={{ title: 'Ανάλυση Δικτύου' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

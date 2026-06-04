@@ -11,7 +11,8 @@ import { rankInfluencers } from '../services/ai';
 import { getSettings, saveToHistory } from '../storage';
 import type {
   RootStackParamList, SearchParams,
-  Platform as PlatformType, AccountType, ContentType, SearchRecord,
+  Platform as PlatformType, AccountType, ContentType,
+  PoliticalSpectrum, DateRange, SearchRecord,
 } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -73,6 +74,23 @@ const FOLLOWER_PRESETS = [
   { label: '1M+', min: 1_000_000, max: 50_000_000 },
 ];
 
+const SPECTRUM_OPTIONS: { label: string; value: PoliticalSpectrum }[] = [
+  { label: 'Όλα', value: 'all' },
+  { label: 'Αριστερά', value: 'left' },
+  { label: 'Κεντρ. Αρ.', value: 'center-left' },
+  { label: 'Κέντρο', value: 'center' },
+  { label: 'Κεντρ. Δε.', value: 'center-right' },
+  { label: 'Δεξιά', value: 'right' },
+];
+
+const DATE_RANGE_OPTIONS: { label: string; value: DateRange }[] = [
+  { label: 'Οποιαδήποτε', value: 'any' },
+  { label: '7 ημέρες', value: '7d' },
+  { label: '30 ημέρες', value: '30d' },
+  { label: '90 ημέρες', value: '90d' },
+  { label: '1 χρόνος', value: '1y' },
+];
+
 export default function SearchScreen() {
   const nav = useNavigation<Nav>();
 
@@ -100,6 +118,13 @@ export default function SearchScreen() {
   const [accountTypes, setAccountTypes] = useState<AccountType[]>([]);
   const [contentTypes, setContentTypes] = useState<ContentType[]>([]);
 
+  // --- Extra filters ---
+  const [excludeKeywords, setExcludeKeywords] = useState<string[]>([]);
+  const [excludeInput, setExcludeInput] = useState('');
+  const [politicalSpectrum, setPoliticalSpectrum] = useState<PoliticalSpectrum>('all');
+  const [dateRange, setDateRange] = useState<DateRange>('any');
+  const [minPostsPerMonth, setMinPostsPerMonth] = useState('');
+
   // --- Topics ---
   const [topics, setTopics] = useState<string[]>([]);
 
@@ -118,6 +143,12 @@ export default function SearchScreen() {
     const kw = bioInput.trim();
     if (kw && !bioKeywords.includes(kw)) setBioKeywords(p => [...p, kw]);
     setBioInput('');
+  }
+
+  function addExcludeKw() {
+    const kw = excludeInput.trim();
+    if (kw && !excludeKeywords.includes(kw)) setExcludeKeywords(p => [...p, kw]);
+    setExcludeInput('');
   }
 
   function togglePlatform(p: PlatformType) {
@@ -166,6 +197,10 @@ export default function SearchScreen() {
       contentTypes,
       verifiedOnly,
       bioKeywords,
+      excludeKeywords,
+      politicalSpectrum,
+      dateRange,
+      minPostsPerMonth: parseInt(minPostsPerMonth, 10) || 0,
     };
 
     setLoading(true);
@@ -418,6 +453,78 @@ export default function SearchScreen() {
               );
             })}
           </View>
+        </SectionBlock>
+
+        {/* ── POLITICAL SPECTRUM ───────────────────────────── */}
+        <SectionBlock title="Πολιτικό Φάσμα / Political Spectrum">
+          <View style={styles.chipRow}>
+            {SPECTRUM_OPTIONS.map(({ label, value }) => (
+              <TouchableOpacity
+                key={value}
+                onPress={() => setPoliticalSpectrum(value)}
+                style={[styles.preset, politicalSpectrum === value && styles.presetOn]}
+              >
+                <Text style={[styles.presetText, politicalSpectrum === value && styles.presetTextOn]}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </SectionBlock>
+
+        {/* ── DATE RANGE ───────────────────────────────────── */}
+        <SectionBlock title="Πρόσφατη Δραστηριότητα / Activity Range">
+          <Text style={styles.fieldHint}>Δημοσιεύσεις εντός:</Text>
+          <View style={styles.chipRow}>
+            {DATE_RANGE_OPTIONS.map(({ label, value }) => (
+              <TouchableOpacity
+                key={value}
+                onPress={() => setDateRange(value)}
+                style={[styles.preset, dateRange === value && styles.presetOn]}
+              >
+                <Text style={[styles.presetText, dateRange === value && styles.presetTextOn]}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={[styles.twoCol, { marginTop: 10 }]}>
+            <View style={styles.colItem}>
+              <Text style={styles.fieldLabel}>Ελ. δημοσιεύσεις/μήνα</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="number-pad"
+                value={minPostsPerMonth}
+                onChangeText={setMinPostsPerMonth}
+                placeholder="0"
+                placeholderTextColor={colors.textDim}
+              />
+            </View>
+          </View>
+        </SectionBlock>
+
+        {/* ── EXCLUDE KEYWORDS ─────────────────────────────── */}
+        <SectionBlock title="Εξαίρεση Λέξεων / Exclude">
+          <Text style={styles.fieldHint}>Εξαιρέστε προφίλ που περιέχουν αυτές τις λέξεις:</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="π.χ. διαφήμιση, sponsored…"
+              placeholderTextColor={colors.textDim}
+              value={excludeInput}
+              onChangeText={setExcludeInput}
+              onSubmitEditing={addExcludeKw}
+              returnKeyType="done"
+            />
+            <TouchableOpacity onPress={addExcludeKw} style={[styles.addBtn, { backgroundColor: colors.danger }]}>
+              <Text style={styles.addBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
+          {excludeKeywords.length > 0 && (
+            <View style={styles.chipRow}>
+              {excludeKeywords.map(kw => (
+                <TouchableOpacity key={kw} onPress={() => setExcludeKeywords(p => p.filter(k => k !== kw))} style={[styles.kwChip, { borderColor: colors.danger }]}>
+                  <Text style={[styles.kwChipText, { color: colors.danger }]}>{kw}  ×</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </SectionBlock>
 
         {/* ── BIO KEYWORDS ─────────────────────────────── */}

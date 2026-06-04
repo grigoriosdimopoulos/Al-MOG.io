@@ -1,20 +1,29 @@
 import type { Influencer, RankedInfluencer, SearchParams } from '../../types';
+import * as FileSystem from 'expo-file-system';
 
-// Lazy-loaded to avoid crash if native module not linked in dev builds
 let _context: any = null;
 
 export async function initLocalModel(modelPath: string): Promise<void> {
-  const { initLlama } = require('llama.rn');
+  // Verify file exists before attempting to load
+  const info = await FileSystem.getInfoAsync(modelPath);
+  if (!info.exists) {
+    throw new Error(`Model file not found: ${modelPath}\nGo to Settings → Manage Models and re-download it.`);
+  }
+
+  // Release any existing context first
   if (_context) {
-    await _context.release();
+    try { await _context.release(); } catch {}
     _context = null;
   }
+
+  const { initLlama } = require('llama.rn');
   _context = await initLlama({
     model: modelPath,
-    use_mlock: true,
-    n_ctx: 2048,
-    n_threads: 4,
+    use_mlock: false,   // true can OOM/crash on Android
+    n_ctx: 1024,        // 2048 is too large for most phones
+    n_threads: 2,       // conservative — prevents ANR on single-core load
     n_gpu_layers: 0,
+    n_batch: 128,
   });
 }
 
@@ -24,7 +33,7 @@ export function isModelLoaded(): boolean {
 
 export async function releaseModel(): Promise<void> {
   if (_context) {
-    await _context.release();
+    try { await _context.release(); } catch {}
     _context = null;
   }
 }
@@ -33,86 +42,100 @@ export async function rankWithLocal(
   params: SearchParams,
   candidates: Influencer[],
 ): Promise<RankedInfluencer[]> {
-  if (!_context) throw new Error('No local model loaded. Select one in Settings → Local Models.');
+  if (!_context) {
+    throw new Error('Δεν έχει φορτωθεί μοντέλο. Επιλέξτε ένα στις Ρυθμίσεις → Μοντέλα.');
+  }
 
-  const BATCH = 5;
+  const BATCH = 3; // smaller batches to stay within n_ctx
   const ranked: RankedInfluencer[] = [];
 
   for (let i = 0; i < candidates.length; i += BATCH) {
     const batch = candidates.slice(i, i + BATCH);
     const prompt = buildPrompt(params, batch);
 
-    const result = await _context.completion({
-      prompt,
-      n_predict: 600,
-      temperature: 0.1,
-      stop: ['</s>', 'Human:', 'User:', '\n\nUser'],
-    });
-
     try {
-      const m = result.text.match(/\{[\s\S]*?\}/);
-      if (!m) throw new Error('no json');
-      const parsed = JSON.parse(m[0]);
-      if (Array.isArray(parsed.ranked)) {
-        ranked.push(...merge(batch, parsed.ranked));
-        continue;
+      const result = await _context.completion({
+        prompt,
+        n_predict: 512,
+        temperature: 0.1,
+        stop: ['</s>', 'Human:', 'User:', '\n\nUser', '[INST]'],
+        repeat_penalty: 1.1,
+      });
+
+      const m = (result.text as string).match(/\{[\s\S]*\}/);
+      if (m) {
+        const parsed = JSON.parse(m[0]);
+        if (Array.isArray(parsed.ranked)) {
+          ranked.push(...mergeRankings(batch, parsed.ranked));
+          continue;
+        }
       }
-    } catch {
-      // fallback scoring
+    } catch (e: any) {
+      // model returned garbage or timed out — use fallback scores
+      console.warn('Local LLM batch error:', e?.message ?? e);
     }
 
-    ranked.push(
-      ...batch.map(c => ({
-        ...c,
-        relevanceScore: 45,
-        aiSummary: 'Analyzed locally — insufficient context for detailed summary.',
-        reachEstimate: Math.floor(c.followers * 0.55),
-        tier: 'medium' as const,
-      })),
-    );
+    // Fallback: deterministic scoring based on topic match
+    ranked.push(...batch.map(c => fallback(c, params)));
   }
 
   return ranked.sort((a, b) => b.relevanceScore - a.relevanceScore);
 }
 
-function buildPrompt(params: SearchParams, batch: Influencer[]): string {
-  const campaignCtx = [
-    `keywords: ${params.keywords.join(', ')}`,
-    `location: ${params.location || 'nationwide'}`,
-    `topics: ${params.politicalTopics.join(', ') || 'politics'}`,
-  ].join(' | ');
+function fallback(c: Influencer, params: SearchParams): RankedInfluencer {
+  const topicMatch = c.politicalTopics.filter(t =>
+    params.politicalTopics.includes(t) ||
+    params.keywords.some(k => t.toLowerCase().includes(k.toLowerCase()))
+  ).length;
+  const score = Math.min(70, 35 + topicMatch * 10);
+  return {
+    ...c,
+    relevanceScore: score,
+    aiSummary: 'Τοπική ανάλυση — βαθμολογία βάσει ταύτισης θεμάτων.',
+    scoringReason: `Βρέθηκαν ${topicMatch} κοινά θέματα με τα κριτήρια αναζήτησης. Followers: ${c.followers.toLocaleString()}, Engagement: ${c.engagementRate}%.`,
+    reachEstimate: Math.floor(c.followers * 0.55),
+    tier: score >= 65 ? 'high' : score >= 45 ? 'medium' : 'low',
+  };
+}
 
+function buildPrompt(params: SearchParams, batch: Influencer[]): string {
+  const ctx = `keywords=${params.keywords.join(',')} location=${params.location || 'Greece'} topics=${params.politicalTopics.slice(0, 3).join(',')}`;
   const profiles = batch
-    .map(
-      c =>
-        `id=${c.id} platform=${c.platform} followers=${c.followers} engagement=${c.engagementRate}% topics=[${c.politicalTopics.slice(0, 3).join(',')}] bio="${c.bio.slice(0, 100)}"`,
-    )
+    .map(c => `id=${c.id} plat=${c.platform} followers=${c.followers} eng=${c.engagementRate}% topics=[${c.politicalTopics.slice(0, 2).join(',')}] bio="${c.bio.slice(0, 80)}"`)
     .join('\n');
 
-  return `<s>[INST] You are a political campaign analyst. Rank these influencers for relevance.
+  return `<s>[INST] Political campaign analyst. Score these influencers 0-100.
 
-Campaign: ${campaignCtx}
-
+Campaign: ${ctx}
 Profiles:
 ${profiles}
 
-Return ONLY valid JSON with no other text:
-{"ranked":[{"id":"...","relevanceScore":0,"aiSummary":"...","reachEstimate":0,"tier":"high|medium|low"}]} [/INST]`;
+Return ONLY JSON:
+{"ranked":[{"id":"...","relevanceScore":75,"aiSummary":"...","scoringReason":"...","reachEstimate":50000,"tier":"high"}]} [/INST]`;
 }
 
-function merge(
+function mergeRankings(
   candidates: Influencer[],
-  rankings: Array<{ id: string; relevanceScore: number; aiSummary: string; reachEstimate: number; tier: 'high' | 'medium' | 'low' }>,
+  rankings: Array<{
+    id: string;
+    relevanceScore: number;
+    aiSummary: string;
+    scoringReason?: string;
+    reachEstimate: number;
+    tier: 'high' | 'medium' | 'low';
+  }>,
 ): RankedInfluencer[] {
   const map = new Map(rankings.map(r => [r.id, r]));
   return candidates.map(c => {
     const r = map.get(c.id);
+    const score = r?.relevanceScore ?? 40;
     return {
       ...c,
-      relevanceScore: r?.relevanceScore ?? 40,
-      aiSummary: r?.aiSummary ?? 'Local analysis.',
+      relevanceScore: score,
+      aiSummary: r?.aiSummary ?? 'Τοπική ανάλυση.',
+      scoringReason: r?.scoringReason ?? `Βαθμολογία ${score}/100 από τοπικό μοντέλο.`,
       reachEstimate: r?.reachEstimate ?? Math.floor(c.followers * 0.55),
-      tier: r?.tier ?? 'low',
+      tier: r?.tier ?? (score >= 75 ? 'high' : score >= 50 ? 'medium' : 'low'),
     };
   });
 }

@@ -35,7 +35,15 @@ export default function BookmarksScreen() {
     <View style={styles.root}>
       {bookmarks.length > 0 && (
         <View style={styles.header}>
-          <Text style={styles.count}>{bookmarks.length} saved influencer{bookmarks.length !== 1 ? 's' : ''}</Text>
+          <Text style={styles.count}>{bookmarks.length} αποθηκευμένες επιρροές</Text>
+          {bookmarks.length >= 2 && (
+            <TouchableOpacity
+              onPress={() => nav.navigate('NetworkAnalysis', { influencers: bookmarks })}
+              style={styles.networkBtn}
+            >
+              <Text style={styles.networkBtnText}>Ανάλυση Δικτύου</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
       <FlatList
@@ -71,12 +79,21 @@ export default function BookmarksScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  count: { fontSize: 13, color: colors.textMuted },
+  count: { flex: 1, fontSize: 13, color: colors.textMuted },
+  networkBtn: {
+    backgroundColor: colors.blue,
+    borderRadius: 3,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  networkBtnText: { fontSize: 12, fontWeight: '700', color: colors.text },
   list: { padding: 10, paddingBottom: 30 },
   removeBtn: { marginTop: -4, marginBottom: 10, alignItems: 'flex-end', paddingRight: 4 },
   removeBtnText: { fontSize: 11, color: colors.danger },
