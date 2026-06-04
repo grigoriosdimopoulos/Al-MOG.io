@@ -1,42 +1,62 @@
 export const colors = {
-  bg: '#0b1629',
-  bgCard: '#102040',
-  bgInput: '#0d1e38',
-  bgSection: '#0f2244',
-  border: '#1a3260',
-  borderLight: '#1e3d6e',
-  gold: '#c9a84c',
-  goldLight: '#e4c97a',
-  goldDim: '#8a6e2a',
-  text: '#dce8f5',
-  textMuted: '#6a87aa',
-  textDim: '#3d5570',
+  // Core backgrounds — deep Hellenic navy
+  bg: '#050f1c',
+  bgCard: '#091929',
+  bgInput: '#06111f',
+  bgSection: '#0b1e30',
+  bgHighlight: '#0f2540',
+
+  // Borders
+  border: '#152d4a',
+  borderActive: '#1e5080',
+  borderFocus: '#2e7ab5',
+
+  // Greek gov blue scale
+  blue: '#2e7ab5',
+  blueLight: '#4a9fd4',
+  blueDim: '#1a4d78',
+  blueDeep: '#0e2e4f',
+
+  // Gold — reserved for primary CTA only
+  gold: '#c0973e',
+  goldLight: '#d4ae5a',
+  goldDim: '#7a5f20',
+
+  // Text
+  text: '#e8f0f8',
+  textSub: '#9ab8d4',
+  textMuted: '#5d849e',
+  textDim: '#2d4d68',
+
+  // Semantic
   success: '#27ae60',
-  successBg: '#0d2e1a',
-  warning: '#e67e22',
-  warningBg: '#2a1a08',
+  successBg: '#071f10',
+  warning: '#d68910',
+  warningBg: '#1f1505',
   danger: '#c0392b',
-  dangerBg: '#2a0d0d',
-  anthropic: '#d4845a',
-  anthropicBg: '#2a1508',
-  local: '#5ab0e0',
-  localBg: '#082230',
+  dangerBg: '#200a09',
+
+  // AI mode
+  anthropic: '#c0674a',
+  anthropicBg: '#1f0e09',
+  local: '#4a9fd4',
+  localBg: '#071829',
 };
 
 export const PLATFORM_COLORS: Record<string, string> = {
-  instagram: '#e1306c',
+  instagram: '#d63384',
   twitter: '#1da1f2',
-  youtube: '#ff0000',
-  tiktok: '#69c9d0',
+  youtube: '#dc3545',
+  tiktok: '#6edcd9',
   facebook: '#1877f2',
 };
 
 export const PLATFORM_ICONS: Record<string, string> = {
-  instagram: '📸',
+  instagram: 'IG',
   twitter: '𝕏',
-  youtube: '▶',
-  tiktok: '♪',
-  facebook: 'f',
+  youtube: 'YT',
+  tiktok: 'TK',
+  facebook: 'FB',
 };
 
 export const PLATFORM_LABELS: Record<string, string> = {
@@ -47,16 +67,27 @@ export const PLATFORM_LABELS: Record<string, string> = {
   facebook: 'Facebook',
 };
 
+export const LANGUAGE_LABELS: Record<string, string> = {
+  el: 'Ελληνικά',
+  en: 'English',
+  de: 'Deutsch',
+  fr: 'Français',
+  it: 'Italiano',
+  es: 'Español',
+  tr: 'Türkçe',
+  ar: 'العربية',
+};
+
 export function scoreColor(score: number): string {
   if (score >= 75) return '#27ae60';
-  if (score >= 50) return '#e67e22';
+  if (score >= 50) return '#d68910';
   return '#c0392b';
 }
 
 export function scoreBg(score: number): string {
-  if (score >= 75) return '#0d2e1a';
-  if (score >= 50) return '#2a1a08';
-  return '#2a0d0d';
+  if (score >= 75) return '#071f10';
+  if (score >= 50) return '#1f1505';
+  return '#200a09';
 }
 
 export function formatNumber(n: number): string {
@@ -65,45 +96,54 @@ export function formatNumber(n: number): string {
   return n.toString();
 }
 
+// Reusable style primitives — gov-style: tight radius, structured
 export const s = {
   card: {
-    backgroundColor: '#102040' as const,
-    borderRadius: 10,
+    backgroundColor: '#091929' as const,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#1a3260' as const,
+    borderColor: '#152d4a' as const,
     padding: 14,
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  section: {
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#152d4a' as const,
+    backgroundColor: '#091929' as const,
+    padding: 14,
+    marginBottom: 12,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '600' as const,
-    color: '#6a87aa' as const,
-    letterSpacing: 1,
+    fontSize: 10,
+    fontWeight: '700' as const,
+    color: '#5d849e' as const,
+    letterSpacing: 1.2,
     textTransform: 'uppercase' as const,
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: '#0d1e38' as const,
-    borderWidth: 1,
-    borderColor: '#1a3260' as const,
-    borderRadius: 8,
-    color: '#dce8f5' as const,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
+    marginBottom: 6,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700' as const,
-    color: '#c9a84c' as const,
-    letterSpacing: 0.8,
+    color: '#4a9fd4' as const,
+    letterSpacing: 1.4,
     textTransform: 'uppercase' as const,
-    marginBottom: 10,
+    marginBottom: 12,
+  },
+  input: {
+    backgroundColor: '#06111f' as const,
+    borderWidth: 1,
+    borderColor: '#152d4a' as const,
+    borderRadius: 3,
+    color: '#e8f0f8' as const,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
   },
   btn: {
-    borderRadius: 8,
-    paddingVertical: 13,
-    paddingHorizontal: 20,
+    borderRadius: 3,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
   },

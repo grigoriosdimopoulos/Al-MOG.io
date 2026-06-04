@@ -9,13 +9,21 @@ export async function rankWithAnthropic(
 ): Promise<RankedInfluencer[]> {
   const system = `You are a Political Campaign Intelligence Analyst specializing in social media influence mapping. You analyze influencer profiles and rank them by their strategic value to political campaigns. Respond ONLY with valid JSON — no prose, no markdown, no explanation outside the JSON structure.`;
 
+  const extra = [
+    params.verifiedOnly ? '- Verified accounts only' : '',
+    params.accountTypes?.length ? `- Account types: ${params.accountTypes.join(', ')}` : '',
+    params.contentTypes?.length ? `- Content types: ${params.contentTypes.join(', ')}` : '',
+    params.bioKeywords?.length ? `- Bio must contain: ${params.bioKeywords.join(', ')}` : '',
+    params.regions?.length ? `- Regions: ${params.regions.join(', ')}` : '',
+  ].filter(Boolean).join('\n');
+
   const user = `Campaign parameters:
 - Keywords: ${params.keywords.join(', ')}
 - Target location: ${params.location || 'nationwide'}
 - Political topics: ${params.politicalTopics.join(', ') || 'general politics'}
 - Language: ${params.language || 'en'}
 - Follower range: ${params.followerMin.toLocaleString()}–${params.followerMax.toLocaleString()}
-- Min engagement: ${params.engagementMin}%
+- Min engagement: ${params.engagementMin}%${extra ? '\n' + extra : ''}
 
 Rank these ${candidates.length} influencer candidates by strategic value. For each:
 - relevanceScore (0–100): fit for the campaign

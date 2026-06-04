@@ -80,33 +80,53 @@ async function fromTwitter(params: SearchParams, token: string): Promise<Influen
   }
 }
 
+const GREEK_NAMES = [
+  ['politiki_ellada', 'Γιώργης Παπαδόπουλος'], ['hellas_voice', 'Νίκος Αθανασίου'],
+  ['athina_speaks', 'Ελένη Κωνσταντίνου'], ['agora_gr', 'Σταύρος Δημητρίου'],
+  ['polis_watch', 'Μαρία Σταματίου'], ['ekloges_now', 'Κώστας Μαρκάκης'],
+  ['syntagma_live', 'Άρης Βενιζέλος'], ['demos_gr', 'Σοφία Λαζαρίδου'],
+  ['vouli_report', 'Δημήτρης Καλογεράς'], ['kratos_intel', 'Κατερίνα Ρήγα'],
+  ['laos_tora', 'Πάνος Ζαχαρίου'], ['politeia_gr', 'Αλεξάνδρα Πετρίδου'],
+  ['ekfrassi_gr', 'Γιάννης Μεταξάς'], ['paratiritis_gr', 'Ιωάννα Σαρρή'],
+  ['ellinas_citizen', 'Βασίλης Θεοδωρακόπουλος'], ['enimerosi_gr', 'Χρήστος Νάκος'],
+  ['dimokratia_live', 'Νάντια Κυριακού'], ['koinonia_gr', 'Αλέξης Φλωράκης'],
+  ['agones_gr', 'Σπύρος Τριανταφύλλης'], ['greece_now', 'Ρένα Δούκα'],
+];
+
 const MOCK_NAMES = [
   ['patriot_voice', 'Alex Rivera'], ['civic_pulse', 'Jordan Kim'],
   ['policy_watch', 'Sam Chen'], ['truth_anchor', 'Morgan Davis'],
   ['grassroots_hub', 'Taylor Wilson'], ['capitol_intel', 'Casey Brown'],
   ['vote_matters', 'Riley Martinez'], ['citizen_lens', 'Drew Johnson'],
   ['democracy_desk', 'Quinn Thompson'], ['nation_brief', 'Blake Anderson'],
-  ['freedom_report', 'Avery Garcia'], ['civics_now', 'Skyler Lee'],
-  ['change_agent', 'Parker White'], ['town_forum', 'Cameron Harris'],
-  ['district_voice', 'Reese Clark'], ['reform_watch', 'Logan Adams'],
-  ['ballot_intel', 'Finley Moore'], ['impact_vote', 'Sydney Turner'],
-  ['civic_connect', 'Jordan Ellis'], ['pulse_report', 'Casey Walker'],
 ];
 
 function mockInfluencers(params: SearchParams, platform: Platform, limit: number): Influencer[] {
+  const isGreek = (params.location || '').toLowerCase().includes('greece') ||
+    (params.location || '').toLowerCase().includes('greek') ||
+    (params.location || '').toLowerCase().includes('ελλάδα') ||
+    (params.location || '').toLowerCase().includes('αθήνα') ||
+    params.language === 'el';
+
+  const namePool = isGreek ? GREEK_NAMES : MOCK_NAMES;
+  const defaultLocation = isGreek ? (params.location || 'Αθήνα, Ελλάδα') : (params.location || 'United States');
+  const defaultLanguage = params.language || (isGreek ? 'el' : 'en');
+
   const seed = hash(params.keywords.join('') + platform + params.location);
   const count = Math.min(limit, 8 + (seed % 7));
   const results: Influencer[] = [];
 
   for (let i = 0; i < count; i++) {
-    const nameIdx = (seed + i * 7) % MOCK_NAMES.length;
-    const [username, displayName] = MOCK_NAMES[nameIdx];
+    const nameIdx = (seed + i * 7) % namePool.length;
+    const [username, displayName] = namePool[nameIdx];
     const s = seed * (i + 1);
     const followers = 8000 + (s * 1337) % 1_200_000;
     const engagement = 1.2 + (s % 900) / 100;
     const topics = params.politicalTopics.length
       ? params.politicalTopics.slice(0, 2 + (i % 3))
       : params.keywords.slice(0, 2);
+
+    if (params.verifiedOnly && (seed + i) % 5 !== 0) continue;
 
     results.push({
       id: `${platform}_${seed}_${i}`,
@@ -118,11 +138,13 @@ function mockInfluencers(params: SearchParams, platform: Platform, limit: number
       avgLikes: Math.floor(followers * engagement / 200),
       avgComments: Math.floor(followers * engagement / 2000),
       politicalTopics: topics,
-      location: params.location || 'United States',
-      language: params.language || 'en',
-      bio: `${displayName} covers ${topics.join(', ')} with a focus on ${params.keywords.slice(0, 2).join(' and ')}. Engaged political commentator on ${platform}.`,
+      location: defaultLocation,
+      language: defaultLanguage,
+      bio: isGreek
+        ? `${displayName} ασχολείται με ${topics.join(', ')} και δημοσιεύει για ${params.keywords.slice(0, 2).join(' και ')}.`
+        : `${displayName} covers ${topics.join(', ')} with a focus on ${params.keywords.slice(0, 2).join(' and ')}.`,
       profileImageUrl: '',
-      verifiedAccount: (seed + i) % 6 === 0,
+      verifiedAccount: (seed + i) % 5 === 0,
     });
   }
 

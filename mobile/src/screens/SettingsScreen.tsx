@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, TextInput, ScrollView, TouchableOpacity,
-  StyleSheet, Alert, Switch,
+  StyleSheet, Alert,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -30,12 +30,12 @@ export default function SettingsScreen() {
   async function save() {
     await saveSettings(settings);
     setDirty(false);
-    Alert.alert('Saved', 'Settings have been saved.');
+    Alert.alert('Αποθηκεύτηκε', 'Οι ρυθμίσεις αποθηκεύτηκαν.');
   }
 
   async function testAnthropicKey() {
     if (!settings.anthropicApiKey.trim()) {
-      Alert.alert('No key', 'Enter an Anthropic API key first.');
+      Alert.alert('Δεν υπάρχει κλειδί', 'Εισάγετε πρώτα ένα κλειδί Anthropic API.');
       return;
     }
     try {
@@ -53,204 +53,241 @@ export default function SettingsScreen() {
         }),
       });
       if (resp.ok) {
-        Alert.alert('✓ Key is valid', 'Your Anthropic API key works correctly.');
+        Alert.alert('Επαλήθευση επιτυχής', 'Το κλειδί Anthropic API λειτουργεί σωστά.');
       } else {
         const body = await resp.json();
-        Alert.alert('Key error', body.error?.message ?? `HTTP ${resp.status}`);
+        Alert.alert('Σφάλμα κλειδιού', body.error?.message ?? `HTTP ${resp.status}`);
       }
     } catch (e: any) {
-      Alert.alert('Connection error', e.message);
+      Alert.alert('Σφάλμα σύνδεσης', e.message);
     }
   }
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
 
-      {/* AI Mode */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>AI Mode</Text>
-        <View style={styles.card}>
-          <Text style={styles.cardDesc}>
-            Choose how influencer analysis is performed. Anthropic uses Claude AI in the cloud. Local runs an on-device LLM with no internet required.
-          </Text>
-          <View style={styles.modeRow}>
-            {(['anthropic', 'local'] as AIMode[]).map(mode => (
-              <TouchableOpacity
-                key={mode}
-                onPress={() => update({ aiMode: mode })}
-                style={[styles.modeBtn, settings.aiMode === mode && styles.modeBtnActive]}
-              >
-                <Text style={styles.modeIcon}>{mode === 'anthropic' ? '🤖' : '📱'}</Text>
+      {/* ── AI MODE ─────────────────────────────────── */}
+      <SettingBlock title="Λειτουργία ΤΝ / AI Mode">
+        <Text style={styles.hint}>
+          Επιλέξτε πώς εκτελείται η ανάλυση επιρροών. Το Anthropic χρησιμοποιεί Claude AI μέσω cloud. Το Τοπικό εκτελεί LLM στη συσκευή.
+        </Text>
+        <View style={styles.modeRow}>
+          {(['anthropic', 'local'] as AIMode[]).map(mode => (
+            <TouchableOpacity
+              key={mode}
+              onPress={() => update({ aiMode: mode })}
+              style={[styles.modeBtn, settings.aiMode === mode && styles.modeBtnActive]}
+            >
+              <View style={[styles.modeDot, settings.aiMode === mode && styles.modeDotActive]} />
+              <View style={{ flex: 1 }}>
                 <Text style={[styles.modeBtnText, settings.aiMode === mode && styles.modeBtnTextActive]}>
-                  {mode === 'anthropic' ? 'Claude AI (Anthropic)' : 'Local LLM (On-device)'}
+                  {mode === 'anthropic' ? 'Claude AI (Anthropic)' : 'Τοπικό LLM (On-device)'}
                 </Text>
-              </TouchableOpacity>
-            ))}
+                <Text style={styles.modeSubText}>
+                  {mode === 'anthropic' ? 'Απαιτεί σύνδεση internet + API key' : 'Εκτελείται χωρίς internet'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </SettingBlock>
+
+      {/* ── ANTHROPIC API KEY ─────────────────────── */}
+      <SettingBlock title="Κλειδί Anthropic API">
+        <Text style={styles.hint}>
+          Προσωπικό κλειδί Anthropic API. Χρησιμοποιείται μόνο στη λειτουργία Claude AI.
+        </Text>
+        <Text style={styles.fieldLabel}>API Key</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="sk-ant-..."
+          placeholderTextColor={colors.textDim}
+          value={settings.anthropicApiKey}
+          onChangeText={v => update({ anthropicApiKey: v })}
+          secureTextEntry
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity onPress={testAnthropicKey} style={styles.actionBtn}>
+          <Text style={styles.actionBtnText}>Δοκιμή Κλειδιού</Text>
+        </TouchableOpacity>
+      </SettingBlock>
+
+      {/* ── LOCAL MODEL ───────────────────────────── */}
+      <SettingBlock title="Τοπικό Μοντέλο LLM">
+        {settings.localModelName ? (
+          <View style={styles.modelRow}>
+            <View style={styles.modelActiveDot} />
+            <Text style={styles.modelActive}>{settings.localModelName}</Text>
+            <TouchableOpacity onPress={() => update({ localModelPath: null, localModelName: null })} style={styles.removeBtn}>
+              <Text style={styles.removeBtnText}>Αφαίρεση</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        ) : (
+          <Text style={styles.hint}>Δεν έχει επιλεγεί μοντέλο. Κατεβάστε ένα για offline ανάλυση.</Text>
+        )}
+        <TouchableOpacity onPress={() => nav.navigate('ModelManager')} style={[styles.actionBtn, { marginTop: 10 }]}>
+          <Text style={styles.actionBtnText}>Διαχείριση Μοντέλων</Text>
+        </TouchableOpacity>
+      </SettingBlock>
 
-      {/* Anthropic API */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Anthropic API Key</Text>
-        <View style={styles.card}>
-          <Text style={styles.cardDesc}>
-            Your personal Anthropic API key. Used only when AI Mode is set to Claude AI.
-            Get a key at console.anthropic.com.
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="sk-ant-..."
-            placeholderTextColor={colors.textDim}
-            value={settings.anthropicApiKey}
-            onChangeText={v => update({ anthropicApiKey: v })}
-            secureTextEntry
-            autoCorrect={false}
-            autoCapitalize="none"
-          />
-          <TouchableOpacity onPress={testAnthropicKey} style={styles.testBtn}>
-            <Text style={styles.testBtnText}>Test Key</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* ── PLATFORM API KEYS ─────────────────────── */}
+      <SettingBlock title="Κλειδιά Πλατφορμών API (Προαιρετικά)">
+        <Text style={styles.hint}>
+          Παρέχετε κλειδιά API για πραγματικά δεδομένα. Χωρίς αυτά η εφαρμογή χρησιμοποιεί παραγόμενα δεδομένα.
+        </Text>
+        <Text style={styles.fieldLabel}>YouTube Data API v3 Key</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="AIza..."
+          placeholderTextColor={colors.textDim}
+          value={settings.youtubeApiKey}
+          onChangeText={v => update({ youtubeApiKey: v })}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+        <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Twitter / X Bearer Token</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="AAAA..."
+          placeholderTextColor={colors.textDim}
+          value={settings.twitterBearerToken}
+          onChangeText={v => update({ twitterBearerToken: v })}
+          autoCorrect={false}
+          autoCapitalize="none"
+          secureTextEntry
+        />
+      </SettingBlock>
 
-      {/* Local model */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Local LLM Model</Text>
-        <View style={styles.card}>
-          {settings.localModelName ? (
-            <View style={styles.modelRow}>
-              <Text style={styles.modelActive}>✓ {settings.localModelName}</Text>
-              <TouchableOpacity onPress={() => update({ localModelPath: null, localModelName: null })}>
-                <Text style={styles.modelRemove}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <Text style={styles.cardDesc}>No model selected. Download one to use offline AI analysis.</Text>
-          )}
-          <TouchableOpacity onPress={() => nav.navigate('ModelManager')} style={styles.testBtn}>
-            <Text style={styles.testBtnText}>Manage Models →</Text>
-          </TouchableOpacity>
+      {/* ── SEARCH SETTINGS ───────────────────────── */}
+      <SettingBlock title="Παράμετροι Αναζήτησης">
+        <Text style={styles.fieldLabel}>Μέγιστα αποτελέσματα ανά αναζήτηση</Text>
+        <View style={styles.countRow}>
+          {[10, 25, 50, 100].map(n => (
+            <TouchableOpacity
+              key={n}
+              onPress={() => update({ resultsPerSearch: n })}
+              style={[styles.countBtn, settings.resultsPerSearch === n && styles.countBtnActive]}
+            >
+              <Text style={[styles.countBtnText, settings.resultsPerSearch === n && { color: colors.blueLight }]}>{n}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      </View>
+      </SettingBlock>
 
-      {/* Platform APIs */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Platform API Keys (Optional)</Text>
-        <View style={styles.card}>
-          <Text style={styles.cardDesc}>
-            Provide API keys to fetch real data. Without them, the app uses generated representative data.
-          </Text>
-          <Text style={styles.inputLabel}>YouTube Data API v3 Key</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="AIza..."
-            placeholderTextColor={colors.textDim}
-            value={settings.youtubeApiKey}
-            onChangeText={v => update({ youtubeApiKey: v })}
-            autoCorrect={false}
-            autoCapitalize="none"
-          />
-          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Twitter / X Bearer Token</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="AAAA..."
-            placeholderTextColor={colors.textDim}
-            value={settings.twitterBearerToken}
-            onChangeText={v => update({ twitterBearerToken: v })}
-            autoCorrect={false}
-            autoCapitalize="none"
-            secureTextEntry
-          />
-        </View>
-      </View>
-
-      {/* Search settings */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Search Settings</Text>
-        <View style={styles.card}>
-          <Text style={styles.inputLabel}>Max results per search</Text>
-          <View style={styles.countRow}>
-            {[10, 25, 50, 100].map(n => (
-              <TouchableOpacity
-                key={n}
-                onPress={() => update({ resultsPerSearch: n })}
-                style={[styles.countBtn, settings.resultsPerSearch === n && styles.countBtnActive]}
-              >
-                <Text style={[styles.countBtnText, settings.resultsPerSearch === n && { color: colors.gold }]}>{n}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </View>
-
-      {/* Save */}
+      {/* ── SAVE BUTTON ───────────────────────────── */}
       {dirty && (
         <TouchableOpacity onPress={save} style={styles.saveBtn}>
-          <Text style={styles.saveBtnText}>Save Settings</Text>
+          <Text style={styles.saveBtnText}>Αποθήκευση Ρυθμίσεων</Text>
         </TouchableOpacity>
       )}
 
-      <View style={styles.about}>
-        <Text style={styles.aboutText}>Al-MOG Political Influencer Intelligence</Text>
-        <Text style={styles.aboutText}>Version 2.0</Text>
+      <View style={styles.footer}>
+        <View style={styles.footerLine} />
+        <Text style={styles.footerText}>Al-MOG — Σύστημα Ανάλυσης Πολιτικών Επιρροών</Text>
+        <Text style={styles.footerText}>v2.0  ·  Εμπιστευτικό Λογισμικό</Text>
       </View>
 
     </ScrollView>
   );
 }
 
+function SettingBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.block}>
+      <View style={styles.blockHeader}>
+        <View style={styles.blockAccent} />
+        <Text style={styles.blockTitle}>{title}</Text>
+      </View>
+      <View style={styles.blockBody}>{children}</View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, paddingBottom: 50 },
-  section: { marginBottom: 22 },
-  sectionTitle: {
-    fontSize: 11, fontWeight: '700', color: colors.gold,
-    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10,
+  content: { padding: 14, paddingBottom: 50 },
+
+  // Section block
+  block: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 3,
+    backgroundColor: colors.bgCard,
+    overflow: 'hidden',
   },
-  card: {
-    backgroundColor: colors.bgCard, borderRadius: 10,
-    borderWidth: 1, borderColor: colors.border, padding: 14,
+  blockHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bgSection,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  cardDesc: { fontSize: 13, color: colors.textMuted, lineHeight: 19, marginBottom: 12 },
+  blockAccent: { width: 3, height: 14, backgroundColor: colors.blue, borderRadius: 1, marginRight: 10 },
+  blockTitle: { fontSize: 10, fontWeight: '700', color: colors.blueLight, letterSpacing: 1.2, textTransform: 'uppercase' },
+  blockBody: { padding: 14 },
+
+  hint: { fontSize: 12, color: colors.textMuted, lineHeight: 18, marginBottom: 12 },
+  fieldLabel: { fontSize: 10, color: colors.textMuted, marginBottom: 5, letterSpacing: 0.4, textTransform: 'uppercase' },
+
+  // AI Mode
   modeRow: { gap: 8 },
   modeBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    padding: 12, borderRadius: 8, borderWidth: 1, borderColor: colors.border,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 12, borderRadius: 3, borderWidth: 1, borderColor: colors.border,
     backgroundColor: colors.bgInput,
   },
-  modeBtnActive: { borderColor: colors.gold },
-  modeIcon: { fontSize: 20 },
+  modeBtnActive: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
+  modeDot: { width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: colors.border },
+  modeDotActive: { backgroundColor: colors.blue, borderColor: colors.blue },
   modeBtnText: { fontSize: 14, color: colors.textMuted, fontWeight: '600' },
-  modeBtnTextActive: { color: colors.gold },
+  modeBtnTextActive: { color: colors.text },
+  modeSubText: { fontSize: 11, color: colors.textDim, marginTop: 2 },
+
+  // Input
   input: {
     backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.border,
-    borderRadius: 8, color: colors.text, paddingHorizontal: 12, paddingVertical: 10,
-    fontSize: 14, marginBottom: 8,
+    borderRadius: 3, color: colors.text, paddingHorizontal: 12, paddingVertical: 10,
+    fontSize: 14, marginBottom: 4,
   },
-  inputLabel: { fontSize: 12, color: colors.textMuted, marginBottom: 6 },
-  testBtn: {
+
+  // Buttons
+  actionBtn: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: 6, borderWidth: 1, borderColor: colors.border,
-    backgroundColor: colors.bgInput, marginTop: 4,
+    paddingHorizontal: 14, paddingVertical: 8,
+    borderRadius: 3, borderWidth: 1, borderColor: colors.borderActive,
+    backgroundColor: colors.bgInput,
   },
-  testBtnText: { fontSize: 13, color: colors.gold, fontWeight: '600' },
-  modelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  modelActive: { fontSize: 14, color: colors.success, fontWeight: '600' },
-  modelRemove: { fontSize: 12, color: colors.danger },
-  countRow: { flexDirection: 'row', gap: 8 },
+  actionBtnText: { fontSize: 13, color: colors.blueLight, fontWeight: '600' },
+
+  // Model
+  modelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  modelActiveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.success, marginRight: 8 },
+  modelActive: { flex: 1, fontSize: 13, color: colors.success, fontWeight: '600' },
+  removeBtn: { paddingHorizontal: 8, paddingVertical: 4 },
+  removeBtnText: { fontSize: 12, color: colors.danger },
+
+  // Count row
+  countRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
   countBtn: {
-    flex: 1, paddingVertical: 8, borderRadius: 6, alignItems: 'center',
+    flex: 1, paddingVertical: 8, borderRadius: 3, alignItems: 'center',
     borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgInput,
   },
-  countBtnActive: { borderColor: colors.gold },
+  countBtnActive: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
   countBtnText: { fontSize: 15, fontWeight: '700', color: colors.textMuted },
+
+  // Save
   saveBtn: {
-    backgroundColor: colors.gold, borderRadius: 10,
-    paddingVertical: 15, alignItems: 'center', marginBottom: 20,
+    backgroundColor: colors.gold, borderRadius: 3,
+    paddingVertical: 15, alignItems: 'center', marginBottom: 16,
   },
-  saveBtnText: { fontSize: 16, fontWeight: '800', color: colors.bg },
-  about: { alignItems: 'center', gap: 4, marginTop: 10 },
-  aboutText: { fontSize: 12, color: colors.textDim },
+  saveBtnText: { fontSize: 15, fontWeight: '800', color: colors.bgCard, letterSpacing: 0.5 },
+
+  // Footer
+  footer: { alignItems: 'center', marginTop: 10, gap: 4 },
+  footerLine: { width: 40, height: 1, backgroundColor: colors.border, marginBottom: 8 },
+  footerText: { fontSize: 11, color: colors.textDim, letterSpacing: 0.3 },
 });

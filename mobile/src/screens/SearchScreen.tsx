@@ -1,44 +1,123 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, ScrollView, TouchableOpacity,
-  StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+  StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, PLATFORM_LABELS, PLATFORM_ICONS, s } from '../theme';
+import { colors, PLATFORM_LABELS, LANGUAGE_LABELS } from '../theme';
 import { fetchCandidates } from '../services/platforms';
 import { rankInfluencers } from '../services/ai';
 import { getSettings, saveToHistory } from '../storage';
-import type { RootStackParamList, SearchParams, Platform as PlatformType, SearchRecord } from '../types';
+import type {
+  RootStackParamList, SearchParams,
+  Platform as PlatformType, AccountType, ContentType, SearchRecord,
+} from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const ALL_PLATFORMS: PlatformType[] = ['instagram', 'twitter', 'youtube', 'tiktok', 'facebook'];
-const TOPIC_PRESETS = [
-  'Healthcare', 'Economy', 'Climate', 'Education', 'Immigration',
-  'Foreign Policy', 'Tax Reform', 'Public Safety', 'Housing', 'Veterans',
-  'Gun Rights', 'Civil Rights', 'Defense', 'Trade', 'Energy',
+
+const PLATFORM_SHORT: Record<PlatformType, string> = {
+  instagram: 'Instagram',
+  twitter: 'X / Twitter',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  facebook: 'Facebook',
+};
+
+const LANGUAGES = ['el', 'en', 'de', 'fr', 'it', 'es', 'tr', 'ar'];
+
+const LOCATION_PRESETS = [
+  { label: 'Αθήνα', value: 'Athens, Greece' },
+  { label: 'Θεσσαλονίκη', value: 'Thessaloniki, Greece' },
+  { label: 'Κρήτη', value: 'Crete, Greece' },
+  { label: 'Πάτρα', value: 'Patras, Greece' },
+  { label: 'Μακεδονία', value: 'Macedonia, Greece' },
+  { label: 'Νησιά', value: 'Greek Islands' },
+  { label: 'Ελλάδα', value: 'Greece' },
+  { label: 'Κύπρος', value: 'Cyprus' },
 ];
-const LANGUAGES = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'zh', 'hi'];
+
+const GREEK_TOPICS = [
+  'Οικονομία', 'Μετανάστευση', 'Παιδεία', 'Υγεία', 'Ε.Ε. / Ευρωζώνη',
+  'Τουρισμός', 'Ναυτιλία', 'Άμυνα', 'Δικαιοσύνη', 'Περιβάλλον',
+];
+
+const TOPIC_PRESETS = [
+  'Economy', 'Healthcare', 'Climate', 'Education', 'Immigration',
+  'Foreign Policy', 'Tax Reform', 'Public Safety', 'Housing', 'Defense',
+  'Civil Rights', 'Trade', 'Energy', 'EU Affairs', 'Tourism',
+];
+
+const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
+  personal: 'Personal',
+  organization: 'Organization',
+  media: 'Media Outlet',
+  party: 'Political Party',
+  ngo: 'NGO',
+};
+
+const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
+  posts: 'Posts',
+  video: 'Video',
+  reels: 'Reels',
+  live: 'Live',
+  podcasts: 'Podcasts',
+};
+
+const FOLLOWER_PRESETS = [
+  { label: '1K+', min: 1_000, max: 50_000 },
+  { label: '10K+', min: 10_000, max: 500_000 },
+  { label: '100K+', min: 100_000, max: 2_000_000 },
+  { label: '1M+', min: 1_000_000, max: 50_000_000 },
+];
 
 export default function SearchScreen() {
   const nav = useNavigation<Nav>();
+
+  // --- Keywords ---
   const [keywords, setKeywords] = useState<string[]>([]);
   const [kwInput, setKwInput] = useState('');
+  const [bioKeywords, setBioKeywords] = useState<string[]>([]);
+  const [bioInput, setBioInput] = useState('');
+
+  // --- Platforms ---
   const [platforms, setPlatforms] = useState<PlatformType[]>(['twitter', 'youtube']);
-  const [location, setLocation] = useState('');
+
+  // --- Location ---
+  const [location, setLocation] = useState('Greece');
+  const [regions, setRegions] = useState<string[]>([]);
+
+  // --- Audience filters ---
   const [followerMin, setFollowerMin] = useState('10000');
   const [followerMax, setFollowerMax] = useState('5000000');
   const [engagementMin, setEngagementMin] = useState('1');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState('el');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+
+  // --- Content & account type ---
+  const [accountTypes, setAccountTypes] = useState<AccountType[]>([]);
+  const [contentTypes, setContentTypes] = useState<ContentType[]>([]);
+
+  // --- Topics ---
   const [topics, setTopics] = useState<string[]>([]);
+
+  // --- State ---
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
 
-  function addKeyword() {
+  // -- helpers --
+  function addKw() {
     const kw = kwInput.trim();
     if (kw && !keywords.includes(kw)) setKeywords(p => [...p, kw]);
     setKwInput('');
+  }
+
+  function addBioKw() {
+    const kw = bioInput.trim();
+    if (kw && !bioKeywords.includes(kw)) setBioKeywords(p => [...p, kw]);
+    setBioInput('');
   }
 
   function togglePlatform(p: PlatformType) {
@@ -49,13 +128,26 @@ export default function SearchScreen() {
     setTopics(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
   }
 
+  function toggleAccountType(t: AccountType) {
+    setAccountTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+
+  function toggleContentType(t: ContentType) {
+    setContentTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+
+  function applyFollowerPreset(min: number, max: number) {
+    setFollowerMin(min.toString());
+    setFollowerMax(max.toString());
+  }
+
   async function runSearch() {
     if (keywords.length === 0) {
-      Alert.alert('Keywords required', 'Add at least one keyword.');
+      Alert.alert('Απαιτούνται λέξεις-κλειδιά', 'Προσθέστε τουλάχιστον μία λέξη-κλειδί.');
       return;
     }
     if (platforms.length === 0) {
-      Alert.alert('Platform required', 'Select at least one platform.');
+      Alert.alert('Απαιτείται πλατφόρμα', 'Επιλέξτε τουλάχιστον μία πλατφόρμα.');
       return;
     }
 
@@ -63,24 +155,27 @@ export default function SearchScreen() {
     const params: SearchParams = {
       keywords,
       location: location.trim(),
+      regions,
       platforms,
-      followerMin: parseInt(followerMin, 10) || 10000,
+      followerMin: parseInt(followerMin, 10) || 10_000,
       followerMax: parseInt(followerMax, 10) || 5_000_000,
       engagementMin: parseFloat(engagementMin) || 1,
       language,
       politicalTopics: topics,
+      accountTypes,
+      contentTypes,
+      verifiedOnly,
+      bioKeywords,
     };
 
     setLoading(true);
     const t0 = Date.now();
     try {
-      setLoadingStep('Gathering profiles from platforms…');
+      setLoadingStep('Συλλογή προφίλ από πλατφόρμες…');
       const candidates = await fetchCandidates(params);
-
       const aiLabel = settings.aiMode === 'anthropic' ? 'Claude AI' : 'Local LLM';
-      setLoadingStep(`Analyzing ${candidates.length} profiles with ${aiLabel}…`);
+      setLoadingStep(`Ανάλυση ${candidates.length} προφίλ με ${aiLabel}…`);
       const results = await rankInfluencers(candidates, params);
-
       const record: SearchRecord = {
         id: `s_${Date.now()}`,
         params,
@@ -92,7 +187,7 @@ export default function SearchScreen() {
       await saveToHistory(record);
       nav.navigate('Results', { record });
     } catch (err: any) {
-      Alert.alert('Search failed', err.message ?? 'Unknown error. Check Settings.');
+      Alert.alert('Αποτυχία αναζήτησης', err.message ?? 'Άγνωστο σφάλμα. Ελέγξτε τις ρυθμίσεις.');
     } finally {
       setLoading(false);
       setLoadingStep('');
@@ -103,37 +198,58 @@ export default function SearchScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
-        {/* Keywords */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Search Keywords</Text>
-          <View style={styles.row}>
+        {/* ── KEYWORDS ─────────────────────────────────── */}
+        <SectionBlock title="Λέξεις-κλειδιά / Keywords">
+          <View style={styles.inputRow}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
-              placeholder="e.g. healthcare reform"
+              placeholder="π.χ. φορολογική μεταρρύθμιση"
               placeholderTextColor={colors.textDim}
               value={kwInput}
               onChangeText={setKwInput}
-              onSubmitEditing={addKeyword}
+              onSubmitEditing={addKw}
               returnKeyType="done"
             />
-            <TouchableOpacity onPress={addKeyword} style={styles.addBtn}>
-              <Text style={styles.addBtnText}>Add</Text>
+            <TouchableOpacity onPress={addKw} style={styles.addBtn}>
+              <Text style={styles.addBtnText}>+</Text>
             </TouchableOpacity>
           </View>
           {keywords.length > 0 && (
             <View style={styles.chipRow}>
               {keywords.map(kw => (
                 <TouchableOpacity key={kw} onPress={() => setKeywords(p => p.filter(k => k !== kw))} style={styles.kwChip}>
-                  <Text style={styles.kwChipText}>{kw} ✕</Text>
+                  <Text style={styles.kwChipText}>{kw}  ×</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
-        </View>
+        </SectionBlock>
 
-        {/* Platforms */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Platforms</Text>
+        {/* ── LOCATION ─────────────────────────────────── */}
+        <SectionBlock title="Γεωγραφική Περιοχή / Location">
+          <TextInput
+            style={styles.input}
+            placeholder="Αθήνα, Θεσσαλονίκη, Greece…"
+            placeholderTextColor={colors.textDim}
+            value={location}
+            onChangeText={setLocation}
+          />
+          <Text style={styles.fieldHint}>Γρήγορη επιλογή:</Text>
+          <View style={styles.chipRow}>
+            {LOCATION_PRESETS.map(({ label, value }) => (
+              <TouchableOpacity
+                key={value}
+                onPress={() => setLocation(value)}
+                style={[styles.preset, location === value && styles.presetOn]}
+              >
+                <Text style={[styles.presetText, location === value && styles.presetTextOn]}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </SectionBlock>
+
+        {/* ── PLATFORMS ────────────────────────────────── */}
+        <SectionBlock title="Πλατφόρμες / Platforms">
           <View style={styles.chipRow}>
             {ALL_PLATFORMS.map(p => {
               const active = platforms.includes(p);
@@ -143,44 +259,17 @@ export default function SearchScreen() {
                   onPress={() => togglePlatform(p)}
                   style={[styles.platformBtn, active && styles.platformBtnOn]}
                 >
-                  <Text style={styles.platformIcon}>{PLATFORM_ICONS[p]}</Text>
-                  <Text style={[styles.platformBtnText, active && { color: colors.gold, fontWeight: '700' }]}>
-                    {PLATFORM_LABELS[p]}
+                  <Text style={[styles.platformBtnText, active && styles.platformBtnTextOn]}>
+                    {PLATFORM_SHORT[p]}
                   </Text>
                 </TouchableOpacity>
               );
             })}
           </View>
-        </View>
+        </SectionBlock>
 
-        {/* Filters */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Filters</Text>
-          <View style={styles.grid2}>
-            {[
-              { label: 'Min followers', val: followerMin, set: setFollowerMin, num: true },
-              { label: 'Max followers', val: followerMax, set: setFollowerMax, num: true },
-              { label: 'Min engagement %', val: engagementMin, set: setEngagementMin, num: true },
-              { label: 'Location', val: location, set: setLocation, num: false },
-            ].map(({ label, val, set, num }) => (
-              <View key={label} style={styles.filterItem}>
-                <Text style={styles.filterLabel}>{label}</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType={num ? 'decimal-pad' : 'default'}
-                  value={val}
-                  onChangeText={set}
-                  placeholderTextColor={colors.textDim}
-                  placeholder={num ? '0' : 'Any'}
-                />
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Language */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Language</Text>
+        {/* ── LANGUAGE ─────────────────────────────────── */}
+        <SectionBlock title="Γλώσσα / Language">
           <View style={styles.chipRow}>
             {LANGUAGES.map(l => (
               <TouchableOpacity
@@ -188,97 +277,377 @@ export default function SearchScreen() {
                 onPress={() => setLanguage(l)}
                 style={[styles.langBtn, language === l && styles.langBtnOn]}
               >
-                <Text style={[styles.langBtnText, language === l && { color: colors.gold }]}>{l.toUpperCase()}</Text>
+                <Text style={styles.langCode}>{l.toUpperCase()}</Text>
+                <Text style={[styles.langLabel, language === l && styles.langLabelOn]}>
+                  {LANGUAGE_LABELS[l]}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </SectionBlock>
 
-        {/* Topics */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Political Topics</Text>
+        {/* ── AUDIENCE METRICS ─────────────────────────── */}
+        <SectionBlock title="Μετρικές Κοινού / Audience">
+          <Text style={styles.fieldHint}>Εύρος ακολούθων:</Text>
           <View style={styles.chipRow}>
-            {TOPIC_PRESETS.map(t => {
-              const active = topics.includes(t);
+            {FOLLOWER_PRESETS.map(({ label, min, max }) => {
+              const active = followerMin === min.toString() && followerMax === max.toString();
               return (
                 <TouchableOpacity
-                  key={t}
-                  onPress={() => toggleTopic(t)}
-                  style={[styles.topicBtn, active && styles.topicBtnOn]}
+                  key={label}
+                  onPress={() => applyFollowerPreset(min, max)}
+                  style={[styles.preset, active && styles.presetOn]}
                 >
-                  <Text style={[styles.topicBtnText, active && { color: colors.gold, fontWeight: '600' }]}>{t}</Text>
+                  <Text style={[styles.presetText, active && styles.presetTextOn]}>{label}</Text>
                 </TouchableOpacity>
               );
             })}
           </View>
-        </View>
+          <View style={styles.twoCol}>
+            <View style={styles.colItem}>
+              <Text style={styles.fieldLabel}>Ελάχιστοι</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="number-pad"
+                value={followerMin}
+                onChangeText={setFollowerMin}
+                placeholderTextColor={colors.textDim}
+              />
+            </View>
+            <View style={styles.colItem}>
+              <Text style={styles.fieldLabel}>Μέγιστοι</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="number-pad"
+                value={followerMax}
+                onChangeText={setFollowerMax}
+                placeholderTextColor={colors.textDim}
+              />
+            </View>
+            <View style={styles.colItem}>
+              <Text style={styles.fieldLabel}>Ελ. Engagement %</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="decimal-pad"
+                value={engagementMin}
+                onChangeText={setEngagementMin}
+                placeholderTextColor={colors.textDim}
+              />
+            </View>
+          </View>
 
-        {/* Run */}
-        <TouchableOpacity onPress={runSearch} style={[styles.searchBtn, loading && { opacity: 0.7 }]} disabled={loading}>
+          <View style={styles.switchRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.fieldLabel}>Μόνο επαληθευμένοι λογαριασμοί</Text>
+              <Text style={styles.fieldHint}>Verified accounts only</Text>
+            </View>
+            <Switch
+              value={verifiedOnly}
+              onValueChange={setVerifiedOnly}
+              trackColor={{ false: colors.border, true: colors.blue }}
+              thumbColor={verifiedOnly ? colors.blueLight : colors.textDim}
+            />
+          </View>
+        </SectionBlock>
+
+        {/* ── ACCOUNT TYPE ─────────────────────────────── */}
+        <SectionBlock title="Τύπος Λογαριασμού / Account Type">
+          <View style={styles.chipRow}>
+            {(Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map(t => {
+              const active = accountTypes.includes(t);
+              return (
+                <TouchableOpacity
+                  key={t}
+                  onPress={() => toggleAccountType(t)}
+                  style={[styles.typeBtn, active && styles.typeBtnOn]}
+                >
+                  <Text style={[styles.typeBtnText, active && styles.typeBtnTextOn]}>
+                    {ACCOUNT_TYPE_LABELS[t]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Text style={styles.fieldHint}>Αφήστε κενό για όλους τους τύπους</Text>
+        </SectionBlock>
+
+        {/* ── CONTENT TYPE ─────────────────────────────── */}
+        <SectionBlock title="Τύπος Περιεχομένου / Content">
+          <View style={styles.chipRow}>
+            {(Object.keys(CONTENT_TYPE_LABELS) as ContentType[]).map(t => {
+              const active = contentTypes.includes(t);
+              return (
+                <TouchableOpacity
+                  key={t}
+                  onPress={() => toggleContentType(t)}
+                  style={[styles.typeBtn, active && styles.typeBtnOn]}
+                >
+                  <Text style={[styles.typeBtnText, active && styles.typeBtnTextOn]}>
+                    {CONTENT_TYPE_LABELS[t]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </SectionBlock>
+
+        {/* ── POLITICAL TOPICS ─────────────────────────── */}
+        <SectionBlock title="Πολιτικά Θέματα / Topics">
+          <Text style={styles.fieldHint}>Ελληνικά θέματα:</Text>
+          <View style={styles.chipRow}>
+            {GREEK_TOPICS.map(t => {
+              const active = topics.includes(t);
+              return (
+                <TouchableOpacity key={t} onPress={() => toggleTopic(t)}
+                  style={[styles.topicBtn, active && styles.topicBtnOn]}>
+                  <Text style={[styles.topicBtnText, active && styles.topicBtnTextOn]}>{t}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <View style={styles.divider} />
+          <Text style={styles.fieldHint}>Διεθνή θέματα:</Text>
+          <View style={styles.chipRow}>
+            {TOPIC_PRESETS.map(t => {
+              const active = topics.includes(t);
+              return (
+                <TouchableOpacity key={t} onPress={() => toggleTopic(t)}
+                  style={[styles.topicBtn, active && styles.topicBtnOn]}>
+                  <Text style={[styles.topicBtnText, active && styles.topicBtnTextOn]}>{t}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </SectionBlock>
+
+        {/* ── BIO KEYWORDS ─────────────────────────────── */}
+        <SectionBlock title="Λέξεις-κλειδιά Bio / Bio Filter">
+          <Text style={styles.fieldHint}>Φιλτράρετε με λέξεις που εμφανίζονται στο βιογραφικό:</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="π.χ. βουλευτής, πρόεδρος…"
+              placeholderTextColor={colors.textDim}
+              value={bioInput}
+              onChangeText={setBioInput}
+              onSubmitEditing={addBioKw}
+              returnKeyType="done"
+            />
+            <TouchableOpacity onPress={addBioKw} style={styles.addBtn}>
+              <Text style={styles.addBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
+          {bioKeywords.length > 0 && (
+            <View style={styles.chipRow}>
+              {bioKeywords.map(kw => (
+                <TouchableOpacity key={kw} onPress={() => setBioKeywords(p => p.filter(k => k !== kw))} style={styles.kwChip}>
+                  <Text style={styles.kwChipText}>{kw}  ×</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </SectionBlock>
+
+        {/* ── SUBMIT ───────────────────────────────────── */}
+        <TouchableOpacity
+          onPress={runSearch}
+          style={[styles.searchBtn, loading && { opacity: 0.65 }]}
+          disabled={loading}
+        >
           {loading ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <ActivityIndicator color={colors.bg} size="small" />
-              <Text style={styles.searchBtnText} numberOfLines={1}>{loadingStep || 'Analyzing…'}</Text>
+            <View style={styles.loadingRow}>
+              <ActivityIndicator color={colors.bgCard} size="small" />
+              <Text style={styles.searchBtnText} numberOfLines={1}>{loadingStep || 'Επεξεργασία…'}</Text>
             </View>
           ) : (
-            <Text style={styles.searchBtnText}>Search & Analyze</Text>
+            <Text style={styles.searchBtnText}>Έναρξη Αναζήτησης</Text>
           )}
         </TouchableOpacity>
 
+        <View style={{ height: 30 }} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
+// Section wrapper with left-accent bar (Greek gov style)
+function SectionBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.sectionBlock}>
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionAccent} />
+        <Text style={styles.sectionTitle}>{title}</Text>
+      </View>
+      <View style={styles.sectionBody}>{children}</View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, paddingBottom: 40 },
-  section: { marginBottom: 22 },
-  sectionTitle: {
-    fontSize: 11, fontWeight: '700', color: colors.gold,
-    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10,
+  content: { padding: 14, paddingTop: 16, paddingBottom: 40 },
+
+  // Section
+  sectionBlock: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 3,
+    backgroundColor: colors.bgCard,
+    overflow: 'hidden',
   },
-  row: { flexDirection: 'row', gap: 8 },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bgSection,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  sectionAccent: {
+    width: 3,
+    height: 14,
+    backgroundColor: colors.blue,
+    borderRadius: 1,
+    marginRight: 10,
+  },
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.blueLight,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  sectionBody: { padding: 12 },
+
+  // Inputs
+  inputRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   input: {
-    backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.border,
-    borderRadius: 8, color: colors.text, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14,
+    backgroundColor: colors.bgInput,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 3,
+    color: colors.text,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
   },
   addBtn: {
-    backgroundColor: colors.gold, borderRadius: 8, paddingHorizontal: 16, justifyContent: 'center',
+    backgroundColor: colors.blue,
+    borderRadius: 3,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  addBtnText: { color: colors.bg, fontWeight: '700', fontSize: 14 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
+  addBtnText: { color: colors.text, fontWeight: '700', fontSize: 18, lineHeight: 22 },
+
+  // Chips
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
   kwChip: {
-    backgroundColor: colors.bgInput, borderRadius: 6, paddingHorizontal: 10,
-    paddingVertical: 5, borderWidth: 1, borderColor: colors.gold,
+    backgroundColor: colors.blueDeep,
+    borderRadius: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: colors.blue,
   },
-  kwChipText: { color: colors.gold, fontSize: 13, fontWeight: '600' },
+  kwChipText: { color: colors.blueLight, fontSize: 12, fontWeight: '600' },
+
+  // Presets
+  preset: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgInput,
+  },
+  presetOn: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
+  presetText: { fontSize: 12, color: colors.textMuted, fontWeight: '600' },
+  presetTextOn: { color: colors.blueLight },
+
+  // Platform buttons
   platformBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgInput,
   },
-  platformBtnOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
-  platformIcon: { fontSize: 14 },
-  platformBtnText: { fontSize: 13, color: colors.textMuted },
-  grid2: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  filterItem: { width: '47%' },
-  filterLabel: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
+  platformBtnOn: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
+  platformBtnText: { fontSize: 13, color: colors.textMuted, fontWeight: '600' },
+  platformBtnTextOn: { color: colors.blueLight },
+
+  // Language
   langBtn: {
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgInput,
+    alignItems: 'center',
   },
-  langBtnOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
-  langBtnText: { fontSize: 12, color: colors.textMuted, fontWeight: '600' },
+  langBtnOn: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
+  langCode: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 0.5 },
+  langLabel: { fontSize: 9, color: colors.textDim, marginTop: 1 },
+  langLabelOn: { color: colors.blueLight },
+
+  // Two column grid
+  twoCol: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  colItem: { flex: 1, minWidth: '30%' },
+  fieldLabel: { fontSize: 10, color: colors.textMuted, marginBottom: 4, letterSpacing: 0.4 },
+  fieldHint: { fontSize: 10, color: colors.textDim, marginTop: 6, marginBottom: 4 },
+
+  // Switch row
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+
+  // Type buttons
+  typeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgInput,
+  },
+  typeBtnOn: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
+  typeBtnText: { fontSize: 12, color: colors.textMuted },
+  typeBtnTextOn: { color: colors.blueLight, fontWeight: '600' },
+
+  // Topics
   topicBtn: {
-    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgInput,
   },
-  topicBtnOn: { borderColor: colors.gold, backgroundColor: colors.bgInput },
+  topicBtnOn: { borderColor: colors.blue, backgroundColor: colors.blueDeep },
   topicBtnText: { fontSize: 12, color: colors.textMuted },
+  topicBtnTextOn: { color: colors.blueLight, fontWeight: '600' },
+
+  // Divider
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: 10 },
+
+  // Submit
   searchBtn: {
-    backgroundColor: colors.gold, borderRadius: 10,
-    paddingVertical: 16, alignItems: 'center', marginTop: 4,
+    backgroundColor: colors.gold,
+    borderRadius: 3,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 6,
   },
-  searchBtnText: { fontSize: 16, fontWeight: '800', color: colors.bg },
+  searchBtnText: { fontSize: 15, fontWeight: '800', color: colors.bgCard, letterSpacing: 0.5 },
+  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 });

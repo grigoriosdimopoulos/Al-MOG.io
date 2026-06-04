@@ -3,15 +3,23 @@ export type AIMode = 'anthropic' | 'local';
 export type SortKey = 'score' | 'followers' | 'engagement';
 export type TierFilter = 'all' | 'high' | 'medium' | 'low';
 
+export type AccountType = 'personal' | 'organization' | 'media' | 'party' | 'ngo';
+export type ContentType = 'posts' | 'video' | 'reels' | 'live' | 'podcasts';
+
 export interface SearchParams {
   keywords: string[];
   location: string;
+  regions: string[];
   platforms: Platform[];
   followerMin: number;
   followerMax: number;
   engagementMin: number;
   language: string;
   politicalTopics: string[];
+  accountTypes: AccountType[];
+  contentTypes: ContentType[];
+  verifiedOnly: boolean;
+  bioKeywords: string[];
 }
 
 export interface Influencer {

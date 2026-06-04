@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -25,17 +25,25 @@ const navTheme = {
   colors: {
     ...DefaultTheme.colors,
     background: colors.bg,
-    card: colors.bgCard,
+    card: colors.bgSection,
     text: colors.text,
     border: colors.border,
-    primary: colors.gold,
-    notification: colors.gold,
+    primary: colors.blue,
+    notification: colors.blue,
   },
 };
 
 const headerStyle = {
-  backgroundColor: colors.bgCard,
+  backgroundColor: colors.bgSection,
   borderBottomColor: colors.border,
+};
+
+// Minimal text tab icons matching the gov aesthetic
+const TAB_ICONS: Record<string, string> = {
+  Search: 'ΑΝΑΖ',
+  Bookmarks: 'ΑΠΟΘ',
+  History: 'ΙΣΤΟΡ',
+  Settings: 'ΡΥΘ',
 };
 
 function Tabs() {
@@ -44,46 +52,51 @@ function Tabs() {
       screenOptions={({ route }) => ({
         headerStyle,
         headerTintColor: colors.text,
-        headerTitleStyle: { color: colors.gold, fontWeight: '700' as const, fontSize: 16 },
+        headerTitleStyle: {
+          color: colors.text,
+          fontWeight: '700' as const,
+          fontSize: 15,
+          letterSpacing: 0.3,
+        },
         tabBarStyle: {
-          backgroundColor: colors.bgCard,
+          backgroundColor: colors.bgSection,
           borderTopColor: colors.border,
+          borderTopWidth: 1,
           height: 58,
           paddingBottom: 8,
+          paddingTop: 4,
         },
-        tabBarActiveTintColor: colors.gold,
+        tabBarActiveTintColor: colors.blueLight,
         tabBarInactiveTintColor: colors.textDim,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' as const },
-        tabBarIcon: ({ color, focused }) => {
-          const icons: Record<string, string> = {
-            Search: '🔍',
-            Bookmarks: '⭐',
-            History: '📜',
-            Settings: '⚙️',
-          };
-          return <Text style={{ fontSize: focused ? 22 : 20 }}>{icons[route.name]}</Text>;
-        },
+        tabBarLabelStyle: { fontSize: 9, fontWeight: '700' as const, letterSpacing: 0.5 },
+        tabBarIcon: ({ color, focused }) => (
+          <View style={{
+            width: 28, height: 2, borderRadius: 1,
+            backgroundColor: focused ? colors.blue : 'transparent',
+            marginBottom: 3,
+          }} />
+        ),
       })}
     >
       <Tab.Screen
         name="Search"
         component={SearchScreen}
-        options={{ headerTitle: 'Political Influencer Intelligence', tabBarLabel: 'Search' }}
+        options={{ headerTitle: 'Εντοπισμός Επιρροών — Πολιτικό Αναλυτικό', tabBarLabel: 'Αναζήτηση' }}
       />
       <Tab.Screen
         name="Bookmarks"
         component={BookmarksScreen}
-        options={{ headerTitle: 'Saved Influencers', tabBarLabel: 'Saved' }}
+        options={{ headerTitle: 'Αποθηκευμένα Προφίλ', tabBarLabel: 'Αποθηκευμένα' }}
       />
       <Tab.Screen
         name="History"
         component={HistoryScreen}
-        options={{ headerTitle: 'Search History', tabBarLabel: 'History' }}
+        options={{ headerTitle: 'Ιστορικό Αναζητήσεων', tabBarLabel: 'Ιστορικό' }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ headerTitle: 'Configuration', tabBarLabel: 'Settings' }}
+        options={{ headerTitle: 'Ρυθμίσεις Συστήματος', tabBarLabel: 'Ρυθμίσεις' }}
       />
     </Tab.Navigator>
   );
@@ -98,14 +111,18 @@ export default function App() {
           screenOptions={{
             headerStyle,
             headerTintColor: colors.text,
-            headerTitleStyle: { color: colors.gold, fontWeight: '700' as const },
+            headerTitleStyle: {
+              color: colors.text,
+              fontWeight: '700' as const,
+              fontSize: 15,
+            },
             headerBackTitleVisible: false,
           }}
         >
           <Stack.Screen name="MainTabs" component={Tabs} options={{ headerShown: false }} />
-          <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Analysis Results' }} />
-          <Stack.Screen name="Detail" component={DetailScreen} options={{ title: 'Influencer Profile' }} />
-          <Stack.Screen name="ModelManager" component={ModelScreen} options={{ title: 'Local Models' }} />
+          <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Αποτελέσματα Ανάλυσης' }} />
+          <Stack.Screen name="Detail" component={DetailScreen} options={{ title: 'Προφίλ Επιρροής' }} />
+          <Stack.Screen name="ModelManager" component={ModelScreen} options={{ title: 'Διαχείριση Μοντέλων' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
