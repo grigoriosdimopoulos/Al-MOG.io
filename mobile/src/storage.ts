@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   localModelName: null,
   youtubeApiKey: '',
   twitterBearerToken: '',
+  serpApiKey: '',
   resultsPerSearch: 30,
 };
 

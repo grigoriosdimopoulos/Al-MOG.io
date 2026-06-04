@@ -157,6 +157,26 @@ export default function SettingsScreen() {
           autoCapitalize="none"
           secureTextEntry
         />
+        <Text style={[styles.fieldLabel, { marginTop: 10 }]}>SerpAPI Key (Google Search)</Text>
+        <Text style={[styles.hint, { marginBottom: 6 }]}>
+          Ενεργοποιεί αναζήτηση πραγματικών προφίλ μέσω Google. Λάβετε δωρεάν κλειδί από serpapi.com.
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="serpapi_..."
+          placeholderTextColor={colors.textDim}
+          value={settings.serpApiKey}
+          onChangeText={v => update({ serpApiKey: v })}
+          autoCorrect={false}
+          autoCapitalize="none"
+          secureTextEntry
+        />
+        {settings.serpApiKey.trim().length > 0 && (
+          <View style={styles.serpNote}>
+            <View style={styles.serpDot} />
+            <Text style={styles.serpNoteText}>Ενεργό — τα αποτελέσματα θα προέρχονται από πραγματικά Google αποτελέσματα</Text>
+          </View>
+        )}
       </SettingBlock>
 
       {/* ── SEARCH SETTINGS ───────────────────────── */}
@@ -269,6 +289,11 @@ const styles = StyleSheet.create({
   modelActive: { flex: 1, fontSize: 13, color: colors.success, fontWeight: '600' },
   removeBtn: { paddingHorizontal: 8, paddingVertical: 4 },
   removeBtnText: { fontSize: 12, color: colors.danger },
+
+  // SerpAPI note
+  serpNote: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 },
+  serpDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.success },
+  serpNoteText: { fontSize: 11, color: colors.success, flex: 1 },
 
   // Count row
   countRow: { flexDirection: 'row', gap: 8, marginTop: 4 },

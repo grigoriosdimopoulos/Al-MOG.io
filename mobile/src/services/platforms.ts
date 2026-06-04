@@ -1,7 +1,8 @@
 import type { Influencer, Platform, SearchParams } from '../types';
 import { getSettings } from '../storage';
+import { searchSerpAPI } from './serp';
 
-function profileUrl(platform: Platform, username: string, channelId?: string): string {
+function buildProfileUrl(platform: Platform, username: string, channelId?: string): string {
   const u = username.replace(/^@/, '');
   switch (platform) {
     case 'instagram': return `https://www.instagram.com/${u}/`;
@@ -19,13 +20,31 @@ export async function fetchCandidates(params: SearchParams): Promise<Influencer[
 
   for (const platform of params.platforms) {
     let batch: Influencer[];
-    if (platform === 'youtube' && settings.youtubeApiKey) {
+
+    if (settings.serpApiKey.trim()) {
+      // SerpAPI: real Google search → real profiles
+      try {
+        batch = await searchSerpAPI(
+          settings.serpApiKey,
+          params.keywords,
+          params.location,
+          params.language,
+          platform,
+          params.politicalTopics,
+        );
+        if (batch.length === 0) batch = mockInfluencers(params, platform, settings.resultsPerSearch);
+      } catch (e: any) {
+        console.warn(`SerpAPI error for ${platform}:`, e.message);
+        batch = mockInfluencers(params, platform, settings.resultsPerSearch);
+      }
+    } else if (platform === 'youtube' && settings.youtubeApiKey) {
       batch = await fromYouTube(params, settings.youtubeApiKey);
     } else if (platform === 'twitter' && settings.twitterBearerToken) {
       batch = await fromTwitter(params, settings.twitterBearerToken);
     } else {
       batch = mockInfluencers(params, platform, settings.resultsPerSearch);
     }
+
     all.push(...batch);
   }
 
@@ -36,7 +55,7 @@ async function fromYouTube(params: SearchParams, key: string): Promise<Influence
   const q = [...params.keywords, ...params.politicalTopics].slice(0, 5).join(' ');
   const url =
     `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}` +
-    `&type=channel&maxResults=20&relevanceLanguage=${params.language || 'en'}&key=${key}`;
+    `&type=channel&maxResults=20&relevanceLanguage=${params.language || 'el'}&key=${key}`;
   try {
     const r = await fetch(url);
     const data = await r.json();
@@ -46,7 +65,8 @@ async function fromYouTube(params: SearchParams, key: string): Promise<Influence
       platform: 'youtube' as Platform,
       username: item.snippet.channelTitle.replace(/\s+/g, '_').toLowerCase(),
       displayName: item.snippet.channelTitle,
-      profileUrl: profileUrl('youtube', item.snippet.channelTitle.replace(/\s+/g, '_').toLowerCase(), item.id.channelId),
+      profileUrl: buildProfileUrl('youtube', item.snippet.channelTitle.replace(/\s+/g, '_').toLowerCase(), item.id.channelId),
+      dataSource: 'real' as const,
       followers: 50000 + seeded(item.id.channelId, i) % 1_500_000,
       engagementRate: parseFloat((2 + (seeded(item.id.channelId, i + 1) % 800) / 100).toFixed(2)),
       avgLikes: 1000 + seeded(item.id.channelId, i + 2) % 80_000,
@@ -77,7 +97,8 @@ async function fromTwitter(params: SearchParams, token: string): Promise<Influen
       platform: 'twitter' as Platform,
       username: u.username,
       displayName: u.name,
-      profileUrl: profileUrl('twitter', u.username),
+      profileUrl: buildProfileUrl('twitter', u.username),
+      dataSource: 'real' as const,
       followers: u.public_metrics?.followers_count ?? 5000,
       engagementRate: parseFloat((1.5 + (seeded(u.id, 0) % 500) / 100).toFixed(2)),
       avgLikes: u.public_metrics?.like_count ?? 500,
@@ -148,7 +169,8 @@ function mockInfluencers(params: SearchParams, platform: Platform, limit: number
       platform,
       username: un,
       displayName,
-      profileUrl: profileUrl(platform, un),
+      profileUrl: buildProfileUrl(platform, un),
+      dataSource: 'mock',
       followers,
       engagementRate: parseFloat(engagement.toFixed(2)),
       avgLikes: Math.floor(followers * engagement / 200),

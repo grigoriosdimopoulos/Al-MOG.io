@@ -29,6 +29,7 @@ export interface Influencer {
   username: string;
   displayName: string;
   profileUrl: string;
+  dataSource: 'real' | 'estimated' | 'mock';
   followers: number;
   engagementRate: number;
   avgLikes: number;
@@ -83,6 +84,7 @@ export interface AppSettings {
   localModelName: string | null;
   youtubeApiKey: string;
   twitterBearerToken: string;
+  serpApiKey: string;
   resultsPerSearch: number;
 }
 

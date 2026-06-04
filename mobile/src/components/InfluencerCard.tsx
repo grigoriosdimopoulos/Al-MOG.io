@@ -30,7 +30,14 @@ export default function InfluencerCard({ influencer: r, rank, onPress }: Props) 
             {r.verifiedAccount && <Text style={styles.verified}> ✓</Text>}
           </View>
 
-          <Text style={styles.username}>@{r.username}</Text>
+          <View style={styles.usernameRow}>
+            <Text style={styles.username}>@{r.username}</Text>
+            <View style={[styles.sourceBadge, r.dataSource === 'real' ? styles.sourceBadgeReal : styles.sourceBadgeMock]}>
+              <Text style={[styles.sourceBadgeText, r.dataSource === 'real' ? styles.sourceBadgeTextReal : styles.sourceBadgeTextMock]}>
+                {r.dataSource === 'real' ? 'ΠΡΑΓΜΑΤΙΚΟ' : 'ΠΡΟΣΟΜΟΙΩΣΗ'}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.metrics}>
             <Metric label="Followers" value={formatNumber(r.followers)} />
@@ -97,7 +104,17 @@ const styles = StyleSheet.create({
   platformIcon: { fontSize: 11, color: '#fff' },
   displayName: { fontSize: 15, fontWeight: '700', color: colors.text, flex: 1 },
   verified: { fontSize: 13, color: colors.gold },
-  username: { fontSize: 12, color: colors.textMuted, marginBottom: 8 },
+  usernameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
+  username: { fontSize: 12, color: colors.textMuted },
+  sourceBadge: {
+    paddingHorizontal: 5, paddingVertical: 1,
+    borderRadius: 2, borderWidth: 1,
+  },
+  sourceBadgeReal: { borderColor: '#2a6b3a', backgroundColor: '#0c2b14' },
+  sourceBadgeMock: { borderColor: colors.border, backgroundColor: colors.bgInput },
+  sourceBadgeText: { fontSize: 8, fontWeight: '700', letterSpacing: 0.5 },
+  sourceBadgeTextReal: { color: '#4caf6e' },
+  sourceBadgeTextMock: { color: colors.textDim },
   metrics: { flexDirection: 'row', gap: 14, marginBottom: 8 },
   metric: { alignItems: 'center' },
   metricValue: { fontSize: 14, fontWeight: '700', color: colors.text },
