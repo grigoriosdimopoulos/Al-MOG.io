@@ -23,8 +23,7 @@
     },
     "scheme": "almog",
     "plugins": [
-      "expo-file-system",
-      "expo-sharing"
+      "expo-file-system"
     ],
     "extra": {
       "apiUrl": "https://al-mog.io"
