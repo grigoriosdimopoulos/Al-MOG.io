@@ -33,6 +33,40 @@ export default function SettingsScreen() {
     Alert.alert('Αποθηκεύτηκε', 'Οι ρυθμίσεις αποθηκεύτηκαν.');
   }
 
+  async function testGoogleCSE() {
+    if (!settings.googleApiKey.trim() || !settings.googleCseId.trim()) {
+      Alert.alert('Ελλιπή στοιχεία', 'Εισάγετε και τα δύο πεδία Google (API Key + Search Engine ID).');
+      return;
+    }
+    await saveSettings(settings);
+    setDirty(false);
+    try {
+      const params = new URLSearchParams({
+        key: settings.googleApiKey.trim(),
+        cx: settings.googleCseId.trim(),
+        q: 'πολιτική site:instagram.com',
+        num: '3',
+      });
+      const resp = await fetch(`https://www.googleapis.com/customsearch/v1?${params}`);
+      const data = await resp.json();
+      if (data.error) {
+        Alert.alert(
+          `Σφάλμα Google (${data.error.code})`,
+          data.error.message +
+            (data.error.errors?.[0]?.reason ? `\n\nΑιτία: ${data.error.errors[0].reason}` : ''),
+        );
+        return;
+      }
+      const count = data.items?.length ?? 0;
+      Alert.alert(
+        'Σύνδεση επιτυχής!',
+        `Η Google Custom Search λειτουργεί.\nΒρέθηκαν ${count} αποτελέσματα δοκιμής.\n\nΤο επόμενο search θα φέρει πραγματικά προφίλ.`,
+      );
+    } catch (e: any) {
+      Alert.alert('Σφάλμα σύνδεσης', e.message);
+    }
+  }
+
   async function testAnthropicKey() {
     if (!settings.anthropicApiKey.trim()) {
       Alert.alert('Δεν υπάρχει κλειδί', 'Εισάγετε πρώτα ένα κλειδί Anthropic API.');
@@ -193,6 +227,12 @@ export default function SettingsScreen() {
           1. console.cloud.google.com → ενεργοποιήστε "Custom Search API" → δημιουργήστε API Key{'\n'}
           2. programmablesearchengine.google.com → νέα μηχανή → "Search the entire web" → αντιγράψτε το Search engine ID
         </Text>
+        <TouchableOpacity
+          onPress={testGoogleCSE}
+          style={[styles.actionBtn, { marginTop: 10, alignSelf: 'stretch' }]}
+        >
+          <Text style={styles.actionBtnText}>Δοκιμή Σύνδεσης Google CSE</Text>
+        </TouchableOpacity>
         {settings.googleApiKey.trim().length > 0 && settings.googleCseId.trim().length > 0 && (
           <View style={styles.serpNote}>
             <View style={styles.serpDot} />

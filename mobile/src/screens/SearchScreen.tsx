@@ -6,7 +6,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, PLATFORM_LABELS, LANGUAGE_LABELS } from '../theme';
-import { fetchCandidates } from '../services/platforms';
+import { fetchCandidates, lastSearchError } from '../services/platforms';
 import { rankInfluencers } from '../services/ai';
 import { getSettings, saveToHistory } from '../storage';
 import type {
@@ -208,6 +208,15 @@ export default function SearchScreen() {
     try {
       setLoadingStep('Συλλογή προφίλ από πλατφόρμες…');
       const candidates = await fetchCandidates(params);
+
+      // Warn if real-profile search failed and fell back to mock
+      if (lastSearchError) {
+        Alert.alert(
+          'Αποτυχία Google CSE',
+          `Η αναζήτηση πραγματικών προφίλ απέτυχε — εμφανίζονται προσομοιωμένα δεδομένα.\n\nΣφάλμα: ${lastSearchError}\n\nΕλέγξτε τα κλειδιά API στις Ρυθμίσεις.`,
+        );
+      }
+
       const aiLabel = settings.aiMode === 'anthropic' ? 'Claude AI' : 'Local LLM';
       setLoadingStep(`Ανάλυση ${candidates.length} προφίλ με ${aiLabel}…`);
       const results = await rankInfluencers(candidates, params);

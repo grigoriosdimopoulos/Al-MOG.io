@@ -15,9 +15,12 @@ function buildProfileUrl(platform: Platform, username: string, channelId?: strin
   }
 }
 
+export let lastSearchError: string | null = null;
+
 export async function fetchCandidates(params: SearchParams): Promise<Influencer[]> {
   const settings = await getSettings();
   const all: Influencer[] = [];
+  lastSearchError = null;
 
   for (const platform of params.platforms) {
     let batch: Influencer[];
@@ -36,7 +39,8 @@ export async function fetchCandidates(params: SearchParams): Promise<Influencer[
         );
         if (batch.length === 0) batch = mockInfluencers(params, platform, settings.resultsPerSearch);
       } catch (e: any) {
-        console.warn(`Google CSE error for ${platform}:`, e.message);
+        lastSearchError = `Google CSE [${platform}]: ${e.message}`;
+        console.warn(lastSearchError);
         batch = mockInfluencers(params, platform, settings.resultsPerSearch);
       }
     } else if (settings.serpApiKey.trim()) {
