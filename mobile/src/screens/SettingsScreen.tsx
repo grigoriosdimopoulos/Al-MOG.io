@@ -157,9 +157,54 @@ export default function SettingsScreen() {
           autoCapitalize="none"
           secureTextEntry
         />
-        <Text style={[styles.fieldLabel, { marginTop: 10 }]}>SerpAPI Key (Google Search)</Text>
+      </SettingBlock>
+
+      {/* ── REAL PROFILE SEARCH ───────────────────── */}
+      <SettingBlock title="Αναζήτηση Πραγματικών Προφίλ">
+        <Text style={styles.hint}>
+          Ενεργοποιεί την εύρεση πραγματικών προφίλ μέσω Google. Συνιστάται η δωρεάν επιλογή Google Custom Search (100 αναζητήσεις/ημέρα).
+        </Text>
+
+        <View style={styles.recommendTag}>
+          <Text style={styles.recommendTagText}>ΔΩΡΕΑΝ · ΣΥΝΙΣΤΑΤΑΙ</Text>
+        </View>
+        <Text style={styles.fieldLabel}>Google API Key</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="AIza..."
+          placeholderTextColor={colors.textDim}
+          value={settings.googleApiKey}
+          onChangeText={v => update({ googleApiKey: v })}
+          autoCorrect={false}
+          autoCapitalize="none"
+          secureTextEntry
+        />
+        <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Google Search Engine ID (cx)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="a1b2c3d4e5..."
+          placeholderTextColor={colors.textDim}
+          value={settings.googleCseId}
+          onChangeText={v => update({ googleCseId: v })}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+        <Text style={styles.steps}>
+          1. console.cloud.google.com → ενεργοποιήστε "Custom Search API" → δημιουργήστε API Key{'\n'}
+          2. programmablesearchengine.google.com → νέα μηχανή → "Search the entire web" → αντιγράψτε το Search engine ID
+        </Text>
+        {settings.googleApiKey.trim().length > 0 && settings.googleCseId.trim().length > 0 && (
+          <View style={styles.serpNote}>
+            <View style={styles.serpDot} />
+            <Text style={styles.serpNoteText}>Ενεργό — τα αποτελέσματα θα προέρχονται από πραγματικά Google αποτελέσματα</Text>
+          </View>
+        )}
+
+        <View style={styles.divider} />
+
+        <Text style={styles.fieldLabel}>SerpAPI Key (Εναλλακτικά · Επί πληρωμή)</Text>
         <Text style={[styles.hint, { marginBottom: 6 }]}>
-          Ενεργοποιεί αναζήτηση πραγματικών προφίλ μέσω Google. Λάβετε δωρεάν κλειδί από serpapi.com.
+          Πληρωμένη εναλλακτική (δωρεάν 100/μήνα). Χρησιμοποιείται μόνο αν δεν έχει οριστεί Google κλειδί.
         </Text>
         <TextInput
           style={styles.input}
@@ -171,12 +216,6 @@ export default function SettingsScreen() {
           autoCapitalize="none"
           secureTextEntry
         />
-        {settings.serpApiKey.trim().length > 0 && (
-          <View style={styles.serpNote}>
-            <View style={styles.serpDot} />
-            <Text style={styles.serpNoteText}>Ενεργό — τα αποτελέσματα θα προέρχονται από πραγματικά Google αποτελέσματα</Text>
-          </View>
-        )}
       </SettingBlock>
 
       {/* ── SEARCH SETTINGS ───────────────────────── */}
@@ -294,6 +333,16 @@ const styles = StyleSheet.create({
   serpNote: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 },
   serpDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.success },
   serpNoteText: { fontSize: 11, color: colors.success, flex: 1 },
+
+  // Real profile search
+  recommendTag: {
+    alignSelf: 'flex-start', marginBottom: 8,
+    paddingHorizontal: 7, paddingVertical: 2,
+    borderRadius: 2, borderWidth: 1, borderColor: '#2a6b3a', backgroundColor: '#0c2b14',
+  },
+  recommendTagText: { fontSize: 9, fontWeight: '800', color: '#4caf6e', letterSpacing: 0.6 },
+  steps: { fontSize: 11, color: colors.textMuted, lineHeight: 18, marginTop: 8 },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: 16 },
 
   // Count row
   countRow: { flexDirection: 'row', gap: 8, marginTop: 4 },

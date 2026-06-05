@@ -1,5 +1,6 @@
 import type { Influencer, Platform, SearchParams } from '../types';
 import { getSettings } from '../storage';
+import { searchGoogleCSE } from './google';
 import { searchSerpAPI } from './serp';
 
 function buildProfileUrl(platform: Platform, username: string, channelId?: string): string {
@@ -21,7 +22,24 @@ export async function fetchCandidates(params: SearchParams): Promise<Influencer[
   for (const platform of params.platforms) {
     let batch: Influencer[];
 
-    if (settings.serpApiKey.trim()) {
+    if (settings.googleApiKey.trim() && settings.googleCseId.trim()) {
+      // Google Custom Search (free, 100/day) → real profiles
+      try {
+        batch = await searchGoogleCSE(
+          settings.googleApiKey,
+          settings.googleCseId,
+          params.keywords,
+          params.location,
+          params.language,
+          platform,
+          params.politicalTopics,
+        );
+        if (batch.length === 0) batch = mockInfluencers(params, platform, settings.resultsPerSearch);
+      } catch (e: any) {
+        console.warn(`Google CSE error for ${platform}:`, e.message);
+        batch = mockInfluencers(params, platform, settings.resultsPerSearch);
+      }
+    } else if (settings.serpApiKey.trim()) {
       // SerpAPI: real Google search → real profiles
       try {
         batch = await searchSerpAPI(

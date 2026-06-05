@@ -84,6 +84,8 @@ export interface AppSettings {
   localModelName: string | null;
   youtubeApiKey: string;
   twitterBearerToken: string;
+  googleApiKey: string;
+  googleCseId: string;
   serpApiKey: string;
   resultsPerSearch: number;
 }
