@@ -36,7 +36,7 @@ export default function DetailScreen() {
           `Βαθμολογία: ${r.relevanceScore}/100 · ${r.tier.toUpperCase()} TIER\n` +
           `Followers: ${formatNumber(r.followers)} · Engagement: ${r.engagementRate}%\n` +
           `${r.profileUrl}\n\n${r.aiSummary}`,
-        title: `Al-MOG: ${r.displayName}`,
+        title: `AI-MOG.IO: ${r.displayName}`,
       });
     } catch (e: any) {
       Alert.alert('Αποτυχία κοινοποίησης', e.message);

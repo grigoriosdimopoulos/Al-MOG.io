@@ -33,14 +33,14 @@ export async function exportCSV(results: RankedInfluencer[], params: SearchParam
   );
 
   const csv = [header, ...rows].join('\n');
-  const path = `${FileSystem.documentDirectory}almog_${slug(params)}_${Date.now()}.csv`;
+  const path = `${FileSystem.documentDirectory}aimog_${slug(params)}_${Date.now()}.csv`;
   await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
   await Sharing.shareAsync(path, { mimeType: 'text/csv', dialogTitle: 'Export results as CSV' });
 }
 
 export async function exportJSON(results: RankedInfluencer[], params: SearchParams): Promise<void> {
   const payload = { exportedAt: new Date().toISOString(), searchParams: params, results };
-  const path = `${FileSystem.documentDirectory}almog_${slug(params)}_${Date.now()}.json`;
+  const path = `${FileSystem.documentDirectory}aimog_${slug(params)}_${Date.now()}.json`;
   await FileSystem.writeAsStringAsync(path, JSON.stringify(payload, null, 2), {
     encoding: FileSystem.EncodingType.UTF8,
   });

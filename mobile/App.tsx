@@ -82,7 +82,7 @@ function Tabs() {
       <Tab.Screen
         name="Search"
         component={SearchScreen}
-        options={{ headerTitle: 'Εντοπισμός Επιρροών — Πολιτικό Αναλυτικό', tabBarLabel: 'Αναζήτηση' }}
+        options={{ headerTitle: 'AI-MOG.IO — Επιχειρήσεις Επιρροής', tabBarLabel: 'Αναζήτηση' }}
       />
       <Tab.Screen
         name="Bookmarks"

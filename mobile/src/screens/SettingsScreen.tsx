@@ -283,7 +283,7 @@ export default function SettingsScreen() {
 
       <View style={styles.footer}>
         <View style={styles.footerLine} />
-        <Text style={styles.footerText}>Al-MOG — Σύστημα Ανάλυσης Πολιτικών Επιρροών</Text>
+        <Text style={styles.footerText}>AI-MOG.IO — Σύστημα Επιχειρήσεων Επιρροής</Text>
         <Text style={styles.footerText}>v2.0  ·  Εμπιστευτικό Λογισμικό</Text>
       </View>
 

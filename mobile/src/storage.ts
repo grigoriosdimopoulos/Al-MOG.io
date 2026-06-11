@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { AppSettings, RankedInfluencer, SearchRecord } from './types';
 
 const KEYS = {
-  SETTINGS: 'almog:settings',
-  BOOKMARKS: 'almog:bookmarks',
-  HISTORY: 'almog:history',
+  SETTINGS: 'aimog:settings',
+  BOOKMARKS: 'aimog:bookmarks',
+  HISTORY: 'aimog:history',
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
