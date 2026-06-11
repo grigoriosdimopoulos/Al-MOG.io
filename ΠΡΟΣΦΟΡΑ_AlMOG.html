@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<title>Al-MOG.io — Εμπορική Προσφορά</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap&subset=greek" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1f33;
+    --navy-deep: #050f1c;
+    --navy-mid: #11304d;
+    --blue: #2e7ab5;
+    --blue-light: #5fa8d8;
+    --gold: #b8923c;
+    --gold-light: #d4b06a;
+    --ink: #1a2733;
+    --ink-soft: #44566b;
+    --ink-muted: #7a8a9a;
+    --paper: #ffffff;
+    --paper-tint: #f4f7fa;
+    --line: #dde5ec;
+    --success: #2e7d4f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: #e8ecf0;
+    font-size: 10.5pt;
+    line-height: 1.65;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 296mm;
+    margin: 0 auto 8mm;
+    background: var(--paper);
+    padding: 22mm 20mm;
+    position: relative;
+    box-shadow: 0 2px 18px rgba(10,31,51,.12);
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: auto; min-height: auto; }
+    @page { size: A4; margin: 0; }
+  }
+
+  /* ───────── COVER ───────── */
+  .cover {
+    background: linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
+    color: #e8f0f8;
+    display: flex;
+    flex-direction: column;
+    padding: 26mm 22mm;
+  }
+  .cover-rule { display:flex; align-items:center; gap:14px; margin-bottom: 6mm; }
+  .cover-rule .bar { width: 44px; height: 3px; background: var(--gold); }
+  .cover-rule span {
+    font-size: 8.5pt; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--gold-light); font-weight: 600;
+  }
+  .cover h1 {
+    font-size: 42pt; font-weight: 900; letter-spacing: -1px;
+    line-height: 1.05; margin-top: 38mm;
+  }
+  .cover h1 .io { color: var(--gold-light); }
+  .cover .subtitle {
+    font-family: 'Noto Serif', serif;
+    font-size: 15pt; font-weight: 400; color: #aac4dc;
+    margin-top: 7mm; max-width: 130mm; line-height: 1.5;
+  }
+  .cover .divider { width: 100%; height: 1px; background: rgba(255,255,255,.14); margin: 14mm 0 8mm; }
+  .cover-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 12mm; }
+  .cover-meta .label {
+    font-size: 7.5pt; letter-spacing: 2.5px; text-transform: uppercase;
+    color: #6d8aa5; font-weight: 600; margin-bottom: 1.5mm;
+  }
+  .cover-meta .value { font-size: 11pt; font-weight: 600; color: #e8f0f8; }
+  .cover-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
+  .cover-footer .conf {
+    border: 1px solid rgba(212,176,106,.5); color: var(--gold-light);
+    font-size: 7.5pt; letter-spacing: 2.5px; padding: 2mm 4mm; text-transform: uppercase; font-weight: 700;
+  }
+  .cover-footer .ver { font-size: 8pt; color: #5d7a96; }
+
+  /* ───────── COMMON ───────── */
+  .kicker {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 4mm;
+  }
+  .kicker .bar { width: 26px; height: 3px; background: var(--gold); }
+  .kicker span {
+    font-size: 8pt; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--blue); font-weight: 700;
+  }
+  h2 {
+    font-size: 20pt; font-weight: 800; color: var(--navy);
+    letter-spacing: -.4px; margin-bottom: 6mm; line-height: 1.2;
+  }
+  h3 {
+    font-size: 12pt; font-weight: 700; color: var(--navy);
+    margin: 7mm 0 3mm;
+  }
+  p { color: var(--ink-soft); margin-bottom: 3.5mm; }
+  strong { color: var(--ink); }
+
+  .lead {
+    font-family: 'Noto Serif', serif;
+    font-size: 12pt; line-height: 1.7; color: var(--ink);
+    border-left: 3px solid var(--gold); padding-left: 6mm; margin-bottom: 7mm;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 4mm 0 6mm; font-size: 9.5pt; }
+  thead th {
+    background: var(--navy); color: #fff; text-align: left;
+    padding: 3mm 4mm; font-size: 8pt; letter-spacing: 1.5px;
+    text-transform: uppercase; font-weight: 700;
+  }
+  tbody td { padding: 3mm 4mm; border-bottom: 1px solid var(--line); color: var(--ink-soft); vertical-align: top; }
+  tbody tr:nth-child(even) td { background: var(--paper-tint); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.total td {
+    background: var(--navy) !important; color: #fff; font-weight: 700;
+    border-bottom: none; font-size: 10.5pt;
+  }
+  tr.total td .gold { color: var(--gold-light); }
+
+  .pill {
+    display: inline-block; font-size: 7pt; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 1mm 2.5mm; border-radius: 2px;
+  }
+  .pill.green { background: #e3f2e9; color: var(--success); border: 1px solid #bedecb; }
+  .pill.gold { background: #f7efdd; color: #8a6a24; border: 1px solid #e6d4ab; }
+  .pill.blue { background: #e4eef7; color: var(--blue); border: 1px solid #c4dbeb; }
+
+  /* stat cards */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin: 6mm 0; }
+  .stat {
+    border: 1px solid var(--line); border-top: 3px solid var(--gold);
+    padding: 5mm; background: var(--paper-tint);
+  }
+  .stat .big { font-size: 19pt; font-weight: 800; color: var(--navy); letter-spacing: -.5px; }
+  .stat .cap { font-size: 8pt; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; margin-top: 1mm; }
+
+  /* feature grid */
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin: 5mm 0; }
+  .feature { border: 1px solid var(--line); padding: 5mm; background: #fff; }
+  .feature .fnum {
+    font-size: 8pt; font-weight: 800; color: var(--gold);
+    letter-spacing: 2px; margin-bottom: 2mm;
+  }
+  .feature h4 { font-size: 10.5pt; font-weight: 700; color: var(--navy); margin-bottom: 2mm; }
+  .feature p { font-size: 9pt; margin: 0; line-height: 1.55; }
+
+  /* checklist */
+  ul.check { list-style: none; margin: 3mm 0 5mm; }
+  ul.check li {
+    padding: 1.6mm 0 1.6mm 8mm; position: relative;
+    color: var(--ink-soft); border-bottom: 1px dotted var(--line); font-size: 9.5pt;
+  }
+  ul.check li::before {
+    content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 800;
+  }
+  ul.cross li::before { content: '—'; color: var(--ink-muted); }
+
+  /* timeline */
+  .timeline { margin: 6mm 0; }
+  .trow { display: flex; gap: 5mm; margin-bottom: 5mm; }
+  .tbadge {
+    flex: 0 0 30mm; background: var(--navy); color: #fff; text-align: center;
+    padding: 4mm 2mm; align-self: flex-start;
+  }
+  .tbadge .ph { font-size: 7pt; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); font-weight: 700; }
+  .tbadge .wk { font-size: 13pt; font-weight: 800; margin-top: 1mm; }
+  .tbody { flex: 1; border-bottom: 1px solid var(--line); padding-bottom: 4mm; }
+  .tbody h4 { font-size: 11pt; font-weight: 700; color: var(--navy); margin-bottom: 1.5mm; }
+  .tbody p { font-size: 9pt; margin-bottom: 1.5mm; }
+  .accept {
+    font-size: 8.5pt; background: var(--paper-tint); border-left: 3px solid var(--success);
+    padding: 2mm 3.5mm; color: var(--ink-soft); margin-top: 2mm;
+  }
+  .accept b { color: var(--success); }
+
+  /* payment cards */
+  .pay-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; margin: 5mm 0; }
+  .pay {
+    border: 1px solid var(--line); padding: 4.5mm 4mm; text-align: center; background: #fff;
+  }
+  .pay .pct { font-size: 16pt; font-weight: 800; color: var(--gold); }
+  .pay .amt { font-size: 12pt; font-weight: 800; color: var(--navy); margin: 1mm 0; }
+  .pay .when { font-size: 8pt; color: var(--ink-muted); line-height: 1.4; }
+
+  .note {
+    font-size: 8.5pt; color: var(--ink-muted); background: var(--paper-tint);
+    border: 1px solid var(--line); padding: 3mm 4mm; margin: 4mm 0;
+  }
+
+  .callout {
+    background: linear-gradient(135deg, var(--navy-deep), var(--navy-mid));
+    color: #dce8f2; padding: 7mm 8mm; margin: 6mm 0;
+  }
+  .callout h4 { color: var(--gold-light); font-size: 11pt; font-weight: 700; margin-bottom: 2.5mm; }
+  .callout p { color: #aac4dc; font-size: 9.5pt; margin: 0; }
+
+  /* page footer */
+  .pfoot {
+    position: absolute; bottom: 10mm; left: 20mm; right: 20mm;
+    display: flex; justify-content: space-between;
+    font-size: 7.5pt; color: var(--ink-muted);
+    border-top: 1px solid var(--line); padding-top: 2.5mm;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .pfoot .gold { color: var(--gold); font-weight: 700; }
+
+  /* signature */
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14mm; margin-top: 16mm; }
+  .sig { border-top: 1.5px solid var(--ink); padding-top: 2.5mm; }
+  .sig .who { font-size: 9pt; font-weight: 700; color: var(--navy); }
+  .sig .role { font-size: 8pt; color: var(--ink-muted); }
+
+  .comparison td:first-child { font-weight: 600; color: var(--ink); }
+  .yes { color: var(--success); font-weight: 800; }
+  .no { color: #b3433e; font-weight: 800; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PAGE 1 — COVER ═══════════════ -->
+<div class="page cover">
+  <div class="cover-rule"><div class="bar"></div><span>Εμπιστευτική Εμπορική Προσφορά</span></div>
+
+  <h1>AL&#8209;MOG<span class="io">.io</span></h1>
+  <div class="subtitle">Σύστημα Στρατηγικής Ανάλυσης &amp; Εντοπισμού Πολιτικών Επιρροών στα Μέσα Κοινωνικής Δικτύωσης</div>
+
+  <div class="divider"></div>
+
+  <div class="cover-meta">
+    <div><div class="label">Προς</div><div class="value">Γραφείο Υπουργού</div></div>
+    <div><div class="label">Κωδικός Προσφοράς</div><div class="value">ALMOG-GOV-2026-001</div></div>
+    <div><div class="label">Ημερομηνία Έκδοσης</div><div class="value">Ιούνιος 2026</div></div>
+    <div><div class="label">Ισχύς Προσφοράς</div><div class="value">30 ημέρες</div></div>
+    <div><div class="label">Μοντέλο Απόκτησης</div><div class="value">Εφάπαξ — Πλήρης Ιδιοκτησία</div></div>
+    <div><div class="label">Παράδοση</div><div class="value">8 εβδομάδες</div></div>
+  </div>
+
+  <div class="cover-footer">
+    <div class="conf">Εμπιστευτικό — Αποκλειστικά για τον παραλήπτη</div>
+    <div class="ver">Έκδοση 2.0</div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE 2 — EXECUTIVE SUMMARY ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 01</span></div>
+  <h2>Εκτελεστική Περίληψη</h2>
+
+  <div class="lead">
+    Η πολιτική κοινή γνώμη δεν διαμορφώνεται πλέον μόνο στα τηλεοπτικά πάνελ.
+    Διαμορφώνεται καθημερινά από εκατοντάδες ψηφιακές φωνές — δημοσιογράφους, σχολιαστές,
+    δημιουργούς περιεχομένου — των οποίων η εμβέλεια συχνά υπερβαίνει αυτή των παραδοσιακών ΜΜΕ.
+    Όποιος γνωρίζει <em>ποιες</em> είναι αυτές οι φωνές, <em>τι</em> εκπροσωπούν και <em>πώς</em> διασυνδέονται,
+    διαθέτει αποφασιστικό στρατηγικό πλεονέκτημα.
+  </div>
+
+  <p>Το <strong>Al-MOG.io</strong> είναι ένα αυτόνομο σύστημα τεχνητής νοημοσύνης, σχεδιασμένο ειδικά
+  για το ελληνικό πολιτικό περιβάλλον, που εντοπίζει, αξιολογεί και χαρτογραφεί τις ψηφιακές πολιτικές
+  επιρροές σε πέντε πλατφόρμες: <strong>Instagram, X/Twitter, YouTube, TikTok και Facebook</strong>.</p>
+
+  <p>Σε αντίθεση με κάθε αντίστοιχο εργαλείο της αγοράς, το Al-MOG.io παραδίδεται με μοντέλο
+  <strong>εφάπαξ απόκτησης και πλήρους ιδιοκτησίας</strong>: καμία συνδρομή, καμία εξάρτηση από τρίτο πάροχο,
+  κανένα δεδομένο σε ξένο cloud. Ο πηγαίος κώδικας περιέρχεται εξ ολοκλήρου στην κυριότητά σας.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="big">5</div><div class="cap">Πλατφόρμες κάλυψης</div></div>
+    <div class="stat"><div class="big">0–100</div><div class="cap">Βαθμολόγηση συνάφειας ΑΙ</div></div>
+    <div class="stat"><div class="big">100%</div><div class="cap">Ιδιοκτησία κώδικα</div></div>
+    <div class="stat"><div class="big">8 εβδ.</div><div class="cap">Χρόνος παράδοσης</div></div>
+    <div class="stat"><div class="big">0€</div><div class="cap">Μηνιαίες συνδρομές</div></div>
+    <div class="stat"><div class="big">12 μήνες</div><div class="cap">Εγγύηση &amp; υποστήριξη</div></div>
+  </div>
+
+  <div class="callout">
+    <h4>Γιατί αυτή η προσφορά είναι διαφορετική</h4>
+    <p>Τα διεθνή εργαλεία social listening κοστίζουν €500–€2.000 <em>τον μήνα</em>, επ' αόριστον,
+    αποθηκεύουν τα ερωτήματά σας στους δικούς τους servers και δεν κατανοούν την ελληνική πολιτική
+    πραγματικότητα. Το Al-MOG.io αποκτάται <strong>μία φορά</strong>, λειτουργεί <strong>στη δική σας συσκευή</strong>,
+    μιλά <strong>ελληνικά</strong> — και μετά την παράδοση δεν οφείλετε σε κανέναν τίποτα.</p>
+  </div>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 2 / 8</span></div>
+</div>
+
+<!-- ═══════════════ PAGE 3 — PROBLEM / SOLUTION ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 02</span></div>
+  <h2>Το Πρόβλημα &amp; η Λύση</h2>
+
+  <h3>Η σημερινή πραγματικότητα</h3>
+  <table>
+    <thead><tr><th style="width:46%">Σημερινή πρακτική</th><th>Συνέπεια για το πολιτικό γραφείο</th></tr></thead>
+    <tbody>
+      <tr><td>Χειροκίνητη παρακολούθηση social media από συνεργάτες</td><td>Ώρες εργασίας καθημερινά, αποσπασματική εικόνα, ανθρώπινα λάθη</td></tr>
+      <tr><td>Διεθνή εργαλεία social listening με μηνιαία συνδρομή</td><td>€6.000–€24.000 ετησίως, χωρίς ελληνική πολιτική εξειδίκευση</td></tr>
+      <tr><td>Δεδομένα ερωτημάτων σε cloud τρίτων εταιρειών</td><td>Τα θέματα που σας απασχολούν γίνονται γνωστά σε τρίτους</td></tr>
+      <tr><td>Καμία ανάλυση διασυνδέσεων μεταξύ προσώπων</td><td>Αόρατα δίκτυα επιρροής — αποφάσεις με ελλιπή πληροφόρηση</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Η απάντηση του Al-MOG.io</h3>
+  <div class="features">
+    <div class="feature">
+      <div class="fnum">01 — ΕΝΤΟΠΙΣΜΟΣ</div>
+      <h4>Αναζήτηση πραγματικών προφίλ</h4>
+      <p>Μέσω της επίσημης υποδομής αναζήτησης της Google, το σύστημα εντοπίζει υπαρκτά, ενεργά προφίλ
+      σε 5 πλατφόρμες — με φίλτρα τοποθεσίας, γλώσσας, θεματολογίας και πολιτικού φάσματος,
+      προσαρμοσμένα στις ελληνικές περιφέρειες.</p>
+    </div>
+    <div class="feature">
+      <div class="fnum">02 — ΑΞΙΟΛΟΓΗΣΗ</div>
+      <h4>Βαθμολόγηση με τεχνητή νοημοσύνη</h4>
+      <p>Κάθε προφίλ αξιολογείται από κορυφαίο μοντέλο ΑΙ (Anthropic Claude) και λαμβάνει βαθμολογία
+      0–100 με <strong>πλήρη γραπτή αιτιολόγηση</strong>: γιατί το πρόσωπο αυτό έχει σημασία, ποια είναι
+      η εκτιμώμενη εμβέλειά του, σε ποιο κοινό απευθύνεται.</p>
+    </div>
+    <div class="feature">
+      <div class="fnum">03 — ΧΑΡΤΟΓΡΑΦΗΣΗ</div>
+      <h4>Ανάλυση δικτύου επιρροών</h4>
+      <p>Επιλέγετε ομάδα προσώπων και το σύστημα χαρτογραφεί τις μεταξύ τους σχέσεις: κοινή θεματολογία,
+      γεωγραφική σύμπτωση, επαγγελματικές διασυνδέσεις — με δείκτη βεβαιότητας για κάθε εκτίμηση.</p>
+    </div>
+    <div class="feature">
+      <div class="fnum">04 — ΑΣΦΑΛΕΙΑ</div>
+      <h4>Λειτουργία εκτός διαδικτύου</h4>
+      <p>Με το ενσωματωμένο τοπικό μοντέλο ΑΙ, η ανάλυση εκτελείται <strong>εξ ολοκλήρου εντός της συσκευής</strong>.
+      Καμία πληροφορία δεν εξέρχεται. Ιδανικό για ευαίσθητες αναζητήσεις που δεν πρέπει να αφήνουν ίχνη
+      σε εξωτερικές υπηρεσίες.</p>
+    </div>
+  </div>
+
+  <h3>Πλήρης κατάλογος δυνατοτήτων</h3>
+  <ul class="check" style="columns:2; column-gap:10mm;">
+    <li>Αναζήτηση σε 5 πλατφόρμες ταυτόχρονα</li>
+    <li>Φίλτρα: ακόλουθοι, εμπλοκή, τύπος λογαριασμού</li>
+    <li>Πολιτικό φάσμα (αριστερά → δεξιά)</li>
+    <li>Ελληνικές περιφέρειες &amp; ελληνική γλώσσα</li>
+    <li>Λέξεις-κλειδιά &amp; λέξεις αποκλεισμού</li>
+    <li>Βαθμολογία συνάφειας με αιτιολόγηση</li>
+    <li>Σύνδεσμος σε κάθε πραγματικό προφίλ</li>
+    <li>Ανάλυση δικτύου διασυνδέσεων</li>
+    <li>Αποθήκευση &amp; οργάνωση προφίλ</li>
+    <li>Πλήρες ιστορικό αναζητήσεων</li>
+    <li>Εξαγωγή σε Excel (CSV) &amp; JSON</li>
+    <li>Διπλή λειτουργία ΑΙ: cloud ή on-device</li>
+  </ul>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 3 / 8</span></div>
+</div>
+
+<!-- ═══════════════ PAGE 4 — TECHNICAL ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 03</span></div>
+  <h2>Τεχνικές Προδιαγραφές &amp; Ασφάλεια</h2>
+
+  <h3>Απαιτήσεις συσκευής</h3>
+  <table>
+    <thead><tr><th>Παράμετρος</th><th>Ελάχιστη</th><th>Συνιστώμενη</th></tr></thead>
+    <tbody>
+      <tr><td>Λειτουργικό σύστημα</td><td>Android 11</td><td>Android 13 ή νεότερο</td></tr>
+      <tr><td>Μνήμη RAM</td><td>4 GB</td><td>8 GB</td></tr>
+      <tr><td>Αποθηκευτικός χώρος</td><td>2 GB</td><td>6 GB (με τοπικό μοντέλο ΑΙ)</td></tr>
+      <tr><td>Σύνδεση διαδικτύου</td><td colspan="2">Απαιτείται μόνο για online αναζήτηση — η ανάλυση μπορεί να γίνει offline</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Αρχιτεκτονική ασφάλειας</h3>
+  <ul class="check">
+    <li><strong>Μηδενική υποδομή server</strong> — δεν υπάρχει κεντρική βάση δεδομένων που μπορεί να παραβιαστεί ή να διαρρεύσει</li>
+    <li><strong>Τοπική αποθήκευση</strong> — ιστορικό, αποθηκευμένα προφίλ και ρυθμίσεις παραμένουν αποκλειστικά στη συσκευή</li>
+    <li><strong>Offline ανάλυση ΑΙ</strong> — το τοπικό μοντέλο εκτελείται εντός της συσκευής, χωρίς αποστολή δεδομένων</li>
+    <li><strong>Κλειδιά API υπό τον έλεγχό σας</strong> — οι λογαριασμοί Google/Anthropic ανήκουν σε εσάς, όχι σε εμάς</li>
+    <li><strong>Συμβατότητα GDPR</strong> — επεξεργασία μόνο δημοσίως διαθέσιμων πληροφοριών, χωρίς κεντρική συλλογή</li>
+    <li><strong>Χωρίς λογαριασμούς χρηστών</strong> — καμία εγγραφή, κανένα τηλεμετρικό δεδομένο, καμία καταγραφή χρήσης</li>
+  </ul>
+
+  <h3>Λειτουργικό κόστος τρίτων υπηρεσιών</h3>
+  <p style="font-size:9.5pt">Οι παρακάτω υπηρεσίες τιμολογούνται απευθείας από τους παρόχους τους σε λογαριασμούς που ανήκουν σε εσάς.
+  Δεν αποτελούν έσοδο του αναδόχου και δεν είναι συνδρομή προς εμάς.</p>
+  <table>
+    <thead><tr><th>Υπηρεσία</th><th>Δωρεάν όριο</th><th class="num">Κόστος πέραν ορίου</th></tr></thead>
+    <tbody>
+      <tr><td>Google Custom Search (εύρεση προφίλ)</td><td>100 αναζητήσεις / ημέρα</td><td class="num">$5 / 1.000 αναζητήσεις</td></tr>
+      <tr><td>Anthropic Claude (ανάλυση ΑΙ)</td><td>—</td><td class="num">≈ €0,20 / πλήρη αναζήτηση</td></tr>
+      <tr><td>Τοπικό μοντέλο ΑΙ (offline)</td><td>Απεριόριστο</td><td class="num">€0 — μηδενικό κόστος</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Ενδεικτικά: γραφείο με 10 αναζητήσεις/ημέρα μέσω Claude θα δαπανά περίπου €40–€60/μήνα απευθείας στην Anthropic —
+  ή <strong>€0</strong> με χρήση του τοπικού μοντέλου. Σε κάθε περίπτωση, καμία χρέωση δεν καταβάλλεται στον ανάδοχο.</div>
+
+  <div class="callout">
+    <h4>Η αρχή της κυριαρχίας δεδομένων</h4>
+    <p>Ένα πολιτικό γραφείο δεν μπορεί να εμπιστεύεται τα ερωτήματα στρατηγικής του σε εργαλεία που τα αποθηκεύουν
+    σε servers αγνώστου δικαιοδοσίας. Το Al-MOG.io σχεδιάστηκε από την πρώτη γραμμή κώδικα ώστε ο μοναδικός
+    κάτοχος της πληροφορίας να είστε εσείς.</p>
+  </div>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 4 / 8</span></div>
+</div>
+
+<!-- ═══════════════ PAGE 5 — MILESTONES ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 04</span></div>
+  <h2>Πλάνο Υλοποίησης &amp; Ορόσημα</h2>
+
+  <p>Η υλοποίηση ολοκληρώνεται σε <strong>8 εβδομάδες</strong>, σε τρεις διακριτές φάσεις.
+  Κάθε φάση κλείνει με <strong>μετρήσιμο κριτήριο αποδοχής</strong> που επαληθεύεται από τον πελάτη
+  πριν από οποιαδήποτε αντίστοιχη πληρωμή — εσείς ελέγχετε την πρόοδο, όχι εμείς.</p>
+
+  <div class="timeline">
+    <div class="trow">
+      <div class="tbadge"><div class="ph">Φάση 1</div><div class="wk">Εβδ. 1–4</div></div>
+      <div class="tbody">
+        <h4>Λειτουργικός πυρήνας &amp; αναζήτηση πραγματικών προφίλ</h4>
+        <p>Παράδοση πλήρως λειτουργικής εφαρμογής Android: αναζήτηση σε 5 πλατφόρμες μέσω Google,
+        βαθμολόγηση ΑΙ με αιτιολόγηση, ελληνική διεπαφή με όλες τις ελληνικές περιφέρειες και πολιτικά θέματα,
+        σύνδεσμοι προς κάθε εντοπισμένο προφίλ. Επιτόπια εγκατάσταση και εκπαίδευση 2 ωρών.</p>
+        <div class="accept"><b>Κριτήριο αποδοχής:</b> Επιτυχής αναζήτηση με πραγματικά, επαληθεύσιμα προφίλ σε τουλάχιστον 3 πλατφόρμες, παρουσία του πελάτη.</div>
+      </div>
+    </div>
+
+    <div class="trow">
+      <div class="tbadge"><div class="ph">Φάση 2</div><div class="wk">Εβδ. 5–7</div></div>
+      <div class="tbody">
+        <h4>Ανάλυση δικτύου, offline ΑΙ &amp; εξαγωγές</h4>
+        <p>Ενεργοποίηση ανάλυσης δικτύου διασυνδέσεων μεταξύ αποθηκευμένων προσώπων, εγκατάσταση τοπικού
+        μοντέλου ΑΙ για πλήρως αυτόνομη offline λειτουργία, εξαγωγή αναφορών σε CSV/JSON,
+        προχωρημένα φίλτρα (πολιτικό φάσμα, τύπος λογαριασμού, χρονικό εύρος, λέξεις αποκλεισμού).</p>
+        <div class="accept"><b>Κριτήριο αποδοχής:</b> Επιτυχής ανάλυση δικτύου 5+ προσώπων και πλήρης αναζήτηση με απενεργοποιημένο internet (offline).</div>
+      </div>
+    </div>
+
+    <div class="trow">
+      <div class="tbadge"><div class="ph">Φάση 3</div><div class="wk">Εβδ. 8</div></div>
+      <div class="tbody">
+        <h4>Δοκιμές αποδοχής, τεκμηρίωση &amp; οριστική παράδοση</h4>
+        <p>Δομημένες δοκιμές αποδοχής (UAT) με το προσωπικό σας, εγχειρίδιο χρήσης στα ελληνικά,
+        τεχνική τεκμηρίωση εγκατάστασης και ρύθμισης API, παράδοση πλήρους πηγαίου κώδικα σε ιδιωτικό
+        αποθετήριο της επιλογής σας, μεταβίβαση πνευματικών δικαιωμάτων.</p>
+        <div class="accept"><b>Κριτήριο αποδοχής:</b> Υπογεγραμμένο πρωτόκολλο παραλαβής κατόπιν επιτυχούς ολοκλήρωσης όλων των σεναρίων UAT.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Συνοπτικό χρονοδιάγραμμα</h3>
+  <table>
+    <thead><tr><th>Εβδομάδα</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Φάση 1</strong> — Πυρήνας</td><td style="background:#0a1f33"></td><td style="background:#0a1f33"></td><td style="background:#0a1f33"></td><td style="background:#0a1f33"></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td><strong>Φάση 2</strong> — Προηγμένα</td><td></td><td></td><td></td><td></td><td style="background:#2e7ab5"></td><td style="background:#2e7ab5"></td><td style="background:#2e7ab5"></td><td></td></tr>
+      <tr><td><strong>Φάση 3</strong> — Παράδοση</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background:#b8923c"></td></tr>
+    </tbody>
+  </table>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 5 / 8</span></div>
+</div>
+
+<!-- ═══════════════ PAGE 6 — PRICING ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 05</span></div>
+  <h2>Οικονομική Προσφορά</h2>
+
+  <div class="lead" style="font-size:11pt">
+    Εφάπαξ τίμημα. Καμία συνδρομή. Καμία επαναλαμβανόμενη χρέωση.
+    Στην τιμή περιλαμβάνονται <strong>12 μήνες</strong> εγγύησης, υποστήριξης και ενημερώσεων — χωρίς πρόσθετο κόστος.
+  </div>
+
+  <h3>Αναλυτικό εξοδολόγιο ανάπτυξης</h3>
+  <table>
+    <thead><tr><th>Κατηγορία εργασιών</th><th>Περιγραφή</th><th class="num">Κόστος</th></tr></thead>
+    <tbody>
+      <tr><td>Ανάπτυξη εφαρμογής</td><td>Πλήρης κατασκευή εγγενούς εφαρμογής Android (React Native / TypeScript)</td><td class="num">18.000 €</td></tr>
+      <tr><td>Μηχανή τεχνητής νοημοσύνης</td><td>Ενσωμάτωση Anthropic Claude + τοπικού LLM εντός συσκευής, βαθμολόγηση &amp; αιτιολόγηση</td><td class="num">6.000 €</td></tr>
+      <tr><td>Υποσύστημα εντοπισμού προφίλ</td><td>Ενσωμάτωση Google Search, ανάλυση δικτύου διασυνδέσεων, 5 πλατφόρμες</td><td class="num">3.500 €</td></tr>
+      <tr><td>Σχεδίαση διεπαφής</td><td>Θεσμική αισθητική, πλήρης ελληνική τοπικοποίηση, προσαρμογή στις ανάγκες του γραφείου</td><td class="num">2.500 €</td></tr>
+      <tr><td>Διασφάλιση ποιότητας</td><td>Δοκιμές σε πραγματικές συσκευές, σενάρια UAT, έλεγχος συμβατότητας Android</td><td class="num">2.500 €</td></tr>
+      <tr><td>Εκπαίδευση &amp; τεκμηρίωση</td><td>Επιτόπια εκπαίδευση έως 5 ατόμων, εγχειρίδιο χρήσης &amp; τεχνικός φάκελος στα ελληνικά</td><td class="num">1.500 €</td></tr>
+      <tr><td>Υποστήριξη 12 μηνών</td><td>Τηλεφωνική &amp; email υποστήριξη, διορθώσεις, προσαρμογές σε αλλαγές API τρίτων</td><td class="num"><span class="pill green">Περιλαμβάνεται</span></td></tr>
+      <tr class="total"><td colspan="2">ΣΥΝΟΛΙΚΟ ΕΦΑΠΑΞ ΤΙΜΗΜΑ (πλέον ΦΠΑ 24%)</td><td class="num gold"><span class="gold">34.000 €</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Πρόγραμμα πληρωμών — συνδεδεμένο με παραδοτέα</h3>
+  <div class="pay-grid">
+    <div class="pay"><div class="pct">30%</div><div class="amt">10.200 €</div><div class="when">Υπογραφή σύμβασης<br>&amp; έναρξη έργου</div></div>
+    <div class="pay"><div class="pct">30%</div><div class="amt">10.200 €</div><div class="when">Αποδοχή Φάσης 1<br>(εβδομάδα 4)</div></div>
+    <div class="pay"><div class="pct">25%</div><div class="amt">8.500 €</div><div class="when">Αποδοχή Φάσης 2<br>(εβδομάδα 7)</div></div>
+    <div class="pay"><div class="pct">15%</div><div class="amt">5.100 €</div><div class="when">Πρωτόκολλο παραλαβής<br>(εβδομάδα 8)</div></div>
+  </div>
+  <div class="note">Κάθε πληρωμή καταβάλλεται <strong>μόνο μετά</strong> την επαλήθευση του αντίστοιχου κριτηρίου αποδοχής από τον πελάτη.
+  Το 70% του τιμήματος καταβάλλεται αφού έχετε δει το σύστημα να λειτουργεί με πραγματικά δεδομένα. Εξόφληση εντός 15 εργάσιμων ημερών ανά ορόσημο, με τραπεζικό έμβασμα.</div>
+
+  <h3>Προαιρετικά — μετά τη λήξη του 1ου έτους</h3>
+  <table>
+    <thead><tr><th>Υπηρεσία</th><th>Περιγραφή</th><th class="num">Κόστος</th></tr></thead>
+    <tbody>
+      <tr><td>Πακέτο ετήσιας υποστήριξης</td><td>Επέκταση υποστήριξης &amp; ενημερώσεων κατά 12 μήνες — εφάπαξ, χωρίς αυτόματη ανανέωση</td><td class="num">4.900 € / εφάπαξ</td></tr>
+      <tr><td>Νέες λειτουργίες κατά παραγγελία</td><td>Τιμολόγηση βάσει γραπτής προσφοράς πριν από κάθε εργασία</td><td class="num">80 € / ώρα</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:9pt; color:var(--ink-muted)">Σημείωση: Το σύστημα λειτουργεί κανονικά και χωρίς πακέτο υποστήριξης — η αγορά του είναι αμιγώς προαιρετική.
+  Δεδομένου ότι κατέχετε τον πηγαίο κώδικα, μπορείτε εναλλακτικά να αναθέσετε τη συντήρηση σε οποιονδήποτε τρίτο.</p>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 6 / 8</span></div>
+</div>
+
+<!-- ═══════════════ PAGE 7 — COMPARISON & GUARANTEES ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 06</span></div>
+  <h2>Σύγκριση &amp; Δεσμεύσεις</h2>
+
+  <h3>Al-MOG.io έναντι διεθνών εργαλείων social listening</h3>
+  <table class="comparison">
+    <thead><tr><th style="width:40%">Κριτήριο</th><th>Al-MOG.io</th><th>Διεθνή εργαλεία (Brandwatch, Meltwater κ.ά.)</th></tr></thead>
+    <tbody>
+      <tr><td>Μοντέλο κόστους</td><td><span class="yes">✓</span> Εφάπαξ 34.000 €</td><td><span class="no">✗</span> €6.000–€24.000 / έτος, επ' αόριστον</td></tr>
+      <tr><td>Κόστος 5ετίας</td><td><span class="yes">✓</span> 34.000 € (ή 53.600 € με προαιρετική υποστήριξη)</td><td><span class="no">✗</span> €30.000–€120.000</td></tr>
+      <tr><td>Ιδιοκτησία λογισμικού</td><td><span class="yes">✓</span> Πλήρης — πηγαίος κώδικας δικός σας</td><td><span class="no">✗</span> Άδεια χρήσης, ανακλητή</td></tr>
+      <tr><td>Εξειδίκευση στην ελληνική πολιτική</td><td><span class="yes">✓</span> Σχεδιασμένο γι' αυτήν</td><td><span class="no">✗</span> Γενικής χρήσης, αγγλόφωνο</td></tr>
+      <tr><td>Δεδομένα ερωτημάτων</td><td><span class="yes">✓</span> Παραμένουν στη συσκευή σας</td><td><span class="no">✗</span> Στο cloud του παρόχου</td></tr>
+      <tr><td>Λειτουργία εκτός διαδικτύου</td><td><span class="yes">✓</span> Πλήρης, με τοπικό ΑΙ</td><td><span class="no">✗</span> Αδύνατη</td></tr>
+      <tr><td>Ανάλυση δικτύου επιρροών</td><td><span class="yes">✓</span> Ενσωματωμένη</td><td>Μερική, σε ακριβότερα πακέτα</td></tr>
+      <tr><td>Αιτιολόγηση κάθε αξιολόγησης</td><td><span class="yes">✓</span> Γραπτή, στα ελληνικά</td><td><span class="no">✗</span> Αδιαφανείς δείκτες</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Οι δεσμεύσεις μας</h3>
+  <div class="features">
+    <div class="feature">
+      <div class="fnum">ΔΕΣΜΕΥΣΗ 01</div>
+      <h4>Πληρώνετε μόνο για αποδεδειγμένο αποτέλεσμα</h4>
+      <p>Το 70% του τιμήματος καταβάλλεται μετά από επιδείξεις λειτουργίας με πραγματικά δεδομένα,
+      βάσει γραπτών κριτηρίων αποδοχής. Αν μια φάση δεν περάσει τον έλεγχό σας, δεν πληρώνετε για αυτήν.</p>
+    </div>
+    <div class="feature">
+      <div class="fnum">ΔΕΣΜΕΥΣΗ 02</div>
+      <h4>Εγγύηση καλής λειτουργίας 12 μηνών</h4>
+      <p>Κάθε σφάλμα λογισμικού που αναφέρεται εντός 12 μηνών από την παραλαβή διορθώνεται χωρίς χρέωση,
+      με χρόνο πρώτης απόκρισης 2 εργάσιμων ημερών.</p>
+    </div>
+    <div class="feature">
+      <div class="fnum">ΔΕΣΜΕΥΣΗ 03</div>
+      <h4>Καμία εξάρτηση από εμάς</h4>
+      <p>Με την εξόφληση παραλαμβάνετε το σύνολο του πηγαίου κώδικα και της τεκμηρίωσης.
+      Μπορείτε να συνεχίσετε με εμάς, με δική σας ομάδα ή με οποιονδήποτε τρίτο — η επιλογή είναι δική σας.</p>
+    </div>
+    <div class="feature">
+      <div class="fnum">ΔΕΣΜΕΥΣΗ 04</div>
+      <h4>Απόλυτη εχεμύθεια</h4>
+      <p>Υπογράφουμε συμφωνία εμπιστευτικότητας (NDA) πριν από την έναρξη. Η ύπαρξη και το αντικείμενο
+      της συνεργασίας δεν δημοσιοποιούνται και δεν χρησιμοποιούνται ως εμπορική αναφορά χωρίς γραπτή συγκατάθεσή σας.</p>
+    </div>
+  </div>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 7 / 8</span></div>
+</div>
+
+<!-- ═══════════════ PAGE 8 — TERMS & SIGNATURE ═══════════════ -->
+<div class="page">
+  <div class="kicker"><div class="bar"></div><span>Ενότητα 07</span></div>
+  <h2>Όροι Συνεργασίας &amp; Αποδοχή</h2>
+
+  <h3>Βασικοί όροι</h3>
+  <table>
+    <tbody>
+      <tr><td style="width:32%"><strong>Πνευματική ιδιοκτησία</strong></td><td>Με την ολική εξόφληση, το σύνολο των δικαιωμάτων επί του πηγαίου κώδικα και των παραδοτέων μεταβιβάζεται πλήρως και αμετάκλητα στον πελάτη.</td></tr>
+      <tr><td><strong>Εμπιστευτικότητα</strong></td><td>Αμοιβαία δέσμευση εχεμύθειας (NDA) πριν από την έναρξη του έργου, αορίστου διάρκειας.</td></tr>
+      <tr><td><strong>Εγγύηση</strong></td><td>12 μήνες για σφάλματα λογισμικού, με δωρεάν αποκατάσταση. Δεν καλύπτονται μονομερείς αλλαγές υπηρεσιών τρίτων (Google, Anthropic), οι οποίες ωστόσο αντιμετωπίζονται κατά προτεραιότητα στο πλαίσιο της υποστήριξης.</td></tr>
+      <tr><td><strong>Τροποποιήσεις εύρους</strong></td><td>Πρόσθετες απαιτήσεις κοστολογούνται γραπτώς πριν από κάθε εργασία (80 €/ώρα) και εκτελούνται μόνο κατόπιν έγκρισης.</td></tr>
+      <tr><td><strong>Ισχύς προσφοράς</strong></td><td>30 ημερολογιακές ημέρες από την ημερομηνία έκδοσης.</td></tr>
+      <tr><td><strong>Εφαρμοστέο δίκαιο</strong></td><td>Ελληνικό δίκαιο · αρμόδια τα δικαστήρια των Αθηνών.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Επόμενα βήματα</h3>
+  <table>
+    <thead><tr><th style="width:10%">Βήμα</th><th>Ενέργεια</th><th class="num">Χρόνος</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Συνάντηση παρουσίασης — ζωντανή επίδειξη του συστήματος σε πραγματικές αναζητήσεις</td><td class="num">45 λεπτά</td></tr>
+      <tr><td>2</td><td>Υπογραφή NDA &amp; σύμβασης έργου</td><td class="num">—</td></tr>
+      <tr><td>3</td><td>Καταβολή προκαταβολής &amp; εκκίνηση έργου</td><td class="num">εντός 5 εργ. ημερών</td></tr>
+      <tr><td>4</td><td>Παράδοση Φάσης 1 — πρώτη χρήση από το γραφείο σας</td><td class="num">εβδομάδα 4</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <h4>Σύνοψη σε μία πρόταση</h4>
+    <p>Για το κόστος <strong>ενός έτους</strong> συνδρομής σε ξένο εργαλείο, αποκτάτε <strong>για πάντα</strong> ένα σύστημα
+    σχεδιασμένο για την ελληνική πολιτική σκηνή, που λειτουργεί στη δική σας συσκευή, με τα δεδομένα σας
+    υπό τον αποκλειστικό σας έλεγχο — και με 12 μήνες πλήρους υποστήριξης ήδη μέσα στην τιμή.</p>
+  </div>
+
+  <div class="sig-grid">
+    <div class="sig">
+      <div class="who">Για τον Ανάδοχο</div>
+      <div class="role">Ονοματεπώνυμο · Υπογραφή · Ημερομηνία</div>
+    </div>
+    <div class="sig">
+      <div class="who">Για τον Πελάτη</div>
+      <div class="role">Ονοματεπώνυμο · Υπογραφή · Ημερομηνία</div>
+    </div>
+  </div>
+
+  <p style="margin-top:14mm; font-size:8pt; color:var(--ink-muted); text-align:center;">
+    [Επωνυμία εταιρείας] · ΑΦΜ [—] · [Διεύθυνση] · [email] · [τηλέφωνο]<br>
+    Η παρούσα προσφορά είναι εμπιστευτική και απευθύνεται αποκλειστικά στον παραλήπτη της.
+  </p>
+
+  <div class="pfoot"><span>Al-MOG.io · Εμπορική Προσφορά</span><span class="gold">Εμπιστευτικό</span><span>Σελίδα 8 / 8</span></div>
+</div>
+
+</body>
+</html>
